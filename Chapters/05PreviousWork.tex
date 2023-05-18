@@ -1,0 +1,32 @@
+
+Data extraction from various blockchains is a hot topic and there are different projects that have tried to address this problem. A lot of work has been done by business projects, whose source code and methodology is not publicly available. There are also some open source or academic attempts that I will use as a comparison with my work. 
+
+\noindent In the next sections I'll list the most relevant works I found.
+
+\section{Etherscan}
+
+Etherscan is the reference point for accessing data about the Ethereum blockchain. It’s the main explorer that lets people browse historical data trough a web interface. Here users can easily explore transactions, internal calls, token transfers and everything else related to the Ethereum protocol. It’s useful for inspecting singular operations, but it can’t be used for large scale analysis.
+
+One of the most important service they offer is the verification of smart contracts, they host 461,261\footnote{This data was calculated using the csv exported from https://etherscan.io/chart/verified-contracts} source codes (as of 17 May 2023) that have been verified to match exactly the deployed bytecode on the  Ethereum chain. 
+
+The process of verification consist in providing Etherscan the exact source code of a Smart Contract, the version of the compiler used, the license selected and the deployed address to verify. With this information, Etherscan will try to compile the given data and check if the resulting bytecode equals the one deployed on the chain. There are tools for the most used development tools like Remix or Hardhat that ease this process of verification.
+
+This data is extremely useful for understanding the semantic of the code deployed, since it's very hard to get useful insights by just looking at the raw bytecode. Many studies are based on these verified contracts.
+
+Etherscan has evolved from being just an Ethereum explorer. They used the huge amount of information indexed to create API endpoints and offer these data to users for a fee. These API endpoints include the standard Ethereum JSON-RPC interface and more advanced methods. 
+
+
+
+
+
+\section{Section one}
+
+\subsection{Subsection one}
+
+\subsubsection{Subsubsection one}
+
+\subsubsection{Subsubsection Two}
+
+\subsection{Subsection Two}
+
+\section{Section two}
