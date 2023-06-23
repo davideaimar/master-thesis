@@ -37,6 +37,45 @@
     \newpage
     } %sets new page command to insert an empty page without adding to the page counter or having a page number
 
+%%% ADDED BY ME
+
+\usepackage[para,online,flushleft]{threeparttable}
+
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+    colorlinks=false,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Overleaf Example},
+    pdfpagemode=FullScreen,
+}
+
+% from: nasa-LaTeX-docs 
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+
+% Define a custom style
+\lstdefinestyle{myStyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    captionpos=b,
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    keepspaces=true,                 
+    numbers=none,       
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+}
+
+% Use \lstset to make myStyle the global default
+\lstset{style=myStyle}
+
+%%%%%
 
 
 \begin{document}
@@ -61,7 +100,7 @@
 \noindent  \textcolor{gray}{\large Davide Aimar} \\
 \vspace{0.4cm}
 
-\noindent \textbf{\Large Extraction, indexing and analysis of Ethereum Smart Contracts} \\
+\noindent \textbf{\Large Extraction, indexing and analysis of Ethereum smart contracts data} \\
 \vspace{5.5cm}
 
 
@@ -80,7 +119,7 @@ Norwegian University of Science and Technology
 \end{titlepage}
 \restoregeometry
 \myemptypage %empty page such that the abstract starts at the first right hand side after the title page
-%\end{comment}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % The pre-chapters
@@ -141,9 +180,11 @@ Norwegian University of Science and Technology
 \cleardoublepage
 
 
+
 \chapter{Previous work}
 \input{Chapters/05PreviousWork}
 \cleardoublepage
+
 
 
 \chapter{Methods}
@@ -169,6 +210,7 @@ Norwegian University of Science and Technology
 \addcontentsline{toc}{chapter}{\protect\numberline{}References}
 \printbibliography[title={References}] %you may change the title in the toc here if you want
 \cleardoublepage
+
 
 
 \chapter*{\LARGE \textbf{Appendices}}

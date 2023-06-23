@@ -1,5 +1,5 @@
 
-@misc{bitcoin,
+@techreport{bitcoin,
   author = {Nakamoto, Satoshi},
   month = {10},
   year = {2008},
@@ -9,7 +9,7 @@
   organization = {bitcoin.org}
 }
 
-@article{dgraph,
+@techreport{dgraph,
 	title = {Dgraph: {Synchronously} {Replicated}, {Transactional} and {Distributed} {Graph} {Database}},
 	abstract = {Dgraph is a distributed graph database which provides horizontal scalability, distributed cluster-wide ACID transactions, low-latency arbitrary-depth joins, synchronous replication, high availability and crash resilience. Aimed at real-time transactional workloads, Dgraph shards and stores data in a way to optimize joins and traversals, while still providing data retrieval and aggregation. Dgraph’s unique take is to provide low-latency arbitrary-depth joins in a constant number of network calls (typically, just one network call) that would be required to execute a single join, irrespective of the size of the cluster or the size of the result set.},
 	author = {Jain Manish}
@@ -25,7 +25,7 @@
   organization={Springer}
 }
 
-@Article{Ethereum,
+@techreport{Ethereum,
   Title                    = {Ethereum White Paper: A Next Generation Smart Contract \& Decentralized Application Platform},
   Author                   = {Vitalik Buterin},
   Year                     = {2013},
@@ -33,6 +33,16 @@
   Owner                    = {dranov},
   Timestamp                = {2016.11.12},
   Url                      = {https://github.com/ethereum/wiki/wiki/White-Paper}
+}
+
+@article{ethereum-yellow,
+  title={Ethereum: A secure decentralised generalised transaction ledger},
+  author={Wood, Gavin and others},
+  journal={Ethereum project yellow paper},
+  volume={151},
+  number={2014},
+  pages={1--32},
+  year={2014}
 }
 
 @inproceedings{dataether,
@@ -54,22 +64,7 @@
 	file = {Chen et al. - 2019 - DataEther Data Exploration Framework For Ethereum.pdf:/Users/davideaimar/Zotero/storage/PHUF6MN9/Chen et al. - 2019 - DataEther Data Exploration Framework For Ethereum.pdf:application/pdf},
 }
 
-@misc{xblock,
-	title = {{XBlock}-{ETH}: {Extracting} and {Exploring} {Blockchain} {Data} {From} {Ethereum}},
-	shorttitle = {{XBlock}-{ETH}},
-	url = {http://arxiv.org/abs/1911.00169},
-	abstract = {Blockchain-based cryptocurrencies have received extensive attention recently. Massive data has been stored on permission-less blockchains. The analysis on massive blockchain data can bring huge business values. However, the lack of well-processed up-to-date blockchain datasets impedes big data analytics of blockchain data. To ﬁll this gap, we collect and process the up-to-date on-chain data from Ethereum, which is one of the most popular permission-less blockchains. We name these well-processed Ethereum datasets as XBlock-ETH, which consists of the data of blockchain transactions, smart contracts, and cryptocurrencies (i.e., tokens). The basic statistics and exploration of these datasets are presented. We also outline the possible research opportunities. The datasets with the raw data and codes have been publicly released online.},
-	language = {en},
-	urldate = {2023-02-15},
-	publisher = {arXiv},
-	author = {Zheng, Peilin and Zheng, Zibin and Dai, Hong-ning},
-	month = dec,
-	year = {2019},
-	note = {arXiv:1911.00169 [cs]},
-	keywords = {Computer Science - Cryptography and Security},
-	annote = {Comment: 11 pages, blockchain dataset, Ethereum, http://xblock.pro/},
-	file = {Zheng et al. - 2019 - XBlock-ETH Extracting and Exploring Blockchain Da.pdf:/Users/davideaimar/Zotero/storage/CE36TLBR/Zheng et al. - 2019 - XBlock-ETH Extracting and Exploring Blockchain Da.pdf:application/pdf},
-}
+@article{xblock-eth, author = {Zheng, Peilin and Zheng, Zibin and Wu, Jiajing and Dai, Hong-Ning}, doi = {10.1109/OJCS.2020.2990458}, journal = {IEEE Open J. Comput. Soc.}, pages = {95--106}, publisher = {IEEE}, title = {{XBlock-ETH: Extracting and exploring blockchain data from Ethereum}}, volume = {1}, month = {May}, year = {2020} }
 
 @inproceedings{ethereum_query_language,
 	address = {Gothenburg Sweden},
@@ -89,10 +84,62 @@
 	file = {Bragagnolo et al. - 2018 - Ethereum query language.pdf:/Users/davideaimar/Zotero/storage/GV3T4GQI/Bragagnolo et al. - 2018 - Ethereum query language.pdf:application/pdf},
 }
 
-@online{etherscan,
-    author = "Donald Knuth",
-    title = "Knuth: Computers and Typesetting",
-    url  = "https://etherscan.io/",
-    addendum = "(accessed: 18.05.2023)",
-    keywords = "explorer,etherscan"
+@TECHREPORT{the-graph,
+  AUTHOR =        {Yaniv Tal, Brandon Ramirez, Jannis Pohlmann},
+  TITLE =         {The Graph: A Decentralized Query Protocol for Blockchains},
+  ABSTRACT =      {We introduce The Graph, a Decentralized Query Protocol for indexing and caching data from blockchains and storage networks. We describe the query interface, the topology of the P2P network, and the economic incentives and mechanisms designed to keep the network running as a public utility.},
+  MONTH =         {March},
+  YEAR  =         {2018},
+  PAGES =         {12},
+  URL   =         {https://github.com/graphprotocol/research/blob/master/papers/whitepaper/the-graph-whitepaper.pdf}
+}
+
+@INPROCEEDINGS{dataether,
+  author={Chen, Ting and Li, Zihao and Zhang, Yufei and Luo, Xiapu and Chen, Ang and Yang, Kun and Hu, Bin and Zhu, Tong and Deng, Shifang and Hu, Teng and Chen, Jiachi and Zhang, Xiaosong},
+  booktitle={2019 IEEE 39th International Conference on Distributed Computing Systems (ICDCS)}, 
+  title={DataEther: Data Exploration Framework For Ethereum}, 
+  year={2019},
+  volume={},
+  number={},
+  pages={1369-1380},
+  doi={10.1109/ICDCS.2019.00137}}
+
+@misc{wang2022exploring,
+      title={Exploring Web3 From the View of Blockchain}, 
+      author={Qin Wang and Rujia Li and Qi Wang and Shiping Chen and Mark Ryan and Thomas Hardjono},
+      year={2022},
+      eprint={2206.08821},
+      archivePrefix={arXiv},
+      primaryClass={cs.CR}
+}
+
+@inproceedings{chf,
+  title={Cryptographic hash-function basics: Definitions, implications, and separations for preimage resistance, second-preimage resistance, and collision resistance},
+  author={Rogaway, Phillip and Shrimpton, Thomas},
+  booktitle={FSE},
+  volume={3017},
+  pages={371--388},
+  year={1979}
+}
+
+@article{hashchain,
+  title={Password authentication with insecure communication},
+  author={Lamport, Leslie},
+  journal={Communications of the ACM},
+  volume={24},
+  number={11},
+  pages={770--772},
+  year={1981},
+  publisher={ACM New York, NY, USA}
+}
+
+@inproceedings{ethereum-sc-topology,
+author = {Kiffer, Lucianna and Levin, Dave and Mislove, Alan},
+year = {2018},
+month = {10},
+pages = {494-499},
+title = {Analyzing Ethereum's Contract Topology},
+isbn = {978-1-4503-5619-0},
+journal = {IMC '18: Proceedings of the Internet Measurement Conference 2018},
+doi = {10.1145/3278532.3278575}
 }

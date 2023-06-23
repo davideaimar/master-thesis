@@ -1,9 +1,9 @@
 
-Since the publication of the Bitcoin \cite{bitcoin} whitepaper by the pseudonym "Satoshi Nakamoto" in 2008, the concept of blockchain has gained more and more popularity. The technology has evolved and has became more sophisticated, allowing for more complex use cases than just preventing double spending in money transfers. This was allowed by the use of Smart Contracts, immutable and deterministic pieces of code that rule the behaviour of a network.
+Since the publication of the Bitcoin~\cite{bitcoin} whitepaper by the pseudonym {\tt Satoshi Nakamoto} in 2008, the concept of blockchain has gained more and more popularity. The technology has evolved and has became more sophisticated, allowing for more complex use cases than just preventing double spending in money transfers. This was allowed by the use of Smart Contracts, immutable and deterministic pieces of code that rule the behaviour of a network.
 
-\noindent They were first implemented in 2015 by the Ethereum blockchain \cite{Ethereum}, the first of many "Blockchain 2.0" that allowed developers to build decentralized applications based on Smart Contracts. 
+\noindent They were first implemented in 2015 by the Ethereum blockchain~\cite{Ethereum}, the first of many "Blockchain 2.0" that allowed developers to build decentralized applications based on Smart Contracts. 
 
-\noindent In this work I'll extract semantic from the Ethereum Smart Contracts and index this information using Dgraph\cite{dgraph}, a distributed graph database.
+\noindent In this work I'll extract semantics from the Ethereum Smart Contracts and index this information using Dgraph~\cite{dgraph}, a distributed graph database.
 
 \section{Motivation}
 
@@ -11,7 +11,7 @@ Ethereum is a permissionless blockchain, it can be seen as a digital public ledg
 
 \noindent Reading and understanding this public ledger can bring huge value, since it describes all the history of a market that, as of now, is valued hundreds billions of USD. Apart from the economical aspects, the knowledge of on-chain data is an essential building block for dApps, that are, by definition, applications which interact with Smart Contracts.
 
-\noindent Unfortunately, as noted also in other works \cite{dataether} \cite{xblock} \cite{ethereum_query_language}, extracting and analyzing data from the Ethereum blockchain is not an easy task. The reason is that the amount of data is huge and nodes store it for optimizing storage instead of the ease of access.
+\noindent Unfortunately, as noted also in other works \cite{dataether} \cite{xblock-eth} \cite{ethereum_query_language}, extracting and analyzing data from the Ethereum blockchain is not an easy task. The reason is that the amount of data is huge and Ethereum nodes store it for optimizing storage instead of the ease of access.
 
 \noindent My work aims to ease the access to Smart Contracts and describe a way to do it. The outcome is ...
 

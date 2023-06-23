@@ -1,2 +1,23 @@
 
-lorem ipsum
+Amount of data extracted, time needed, comparison with Ethereum-ETL.
+
+\section{Infrastructure used}
+
+All the work was done on a server provided by the Decentralised Systems Engineering Lab of the NTNU University. The server has these specifications:
+
+\begin{itemize}
+    \item CPU: 64 cores, 256 threads
+    \item RAM: 1.5TB
+    \item OS: Ubuntu 22.04
+    \item Disk: 16TB SSD array
+\end{itemize}
+
+On this same machine there was a running archive Ethereum node that was used to get the data. The client used was Erigon\footnote{https://github.com/ledgerwatch/erigon}, it was ran with command \ref{lst:erigon-command} and the RPC daemond with command \ref{lst:rpc-command}.
+
+\begin{lstlisting}[language=bash,caption={Erigon command},label={lst:erigon-command},captionpos=b,numbers=none]
+./build/bin/erigon --datadir="our data location" --chain=mainnet --authrpc.jwtsecret="JWT secret location" --private.api.addr=0.0.0.0:9090 --http.api=eth,debug,net,trace,web3,erigon
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash,caption={RPC daemon command},label={lst:rpc-command},captionpos=b,numbers=none]
+rpcdaemon --datadir="our data location" --http.addr=0.0.0.0 --http.api=eth,debug,net,trace,web3,erigon
+\end{lstlisting}
