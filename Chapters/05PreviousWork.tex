@@ -1,5 +1,5 @@
 
-Data extraction and indexing from various blockchains is an essential topic for making Web3 and dApps working, there are different projects that have tried to address this problem. A lot of work has been done by companies, whose source code and methodology are not publicly available. There are also some open source or academic attempts that I will use as a comparison with my work. \\
+Data extraction and indexing from various blockchains is an essential topic for making Web3 and dApps working, there are different projects that have tried to address this problem. A lot of work has been done by companies, whose source code and methodology are not publicly available. There are also some open source or academic attempts that I use as a comparison with my work. \\
 
 \noindent These projects target three main categories:
 
@@ -9,50 +9,48 @@ Data extraction and indexing from various blockchains is an essential topic for 
   \item Blockchain users, that need to see the results of transactions.
 \end{itemize}
 
-\noindent In the next sections I'll list the state of the art tools available.
+\noindent In the next sections I list the state of the art tools available.
 
 \section{Etherscan}
 
-Etherscan \footnote{https://etherscan.io/} is the reference point for accessing data about the Ethereum blockchain. It’s the most used explorer that lets people browse historical data trough a web interface. Here users can easily explore transactions, internal calls, token transfers and everything else related to the Ethereum protocol. It’s useful for inspecting singular operations, but it can’t be used for large scale analysis.
+Etherscan\footnote{Online blockchain explorer available at \url{https://etherscan.io/}} is the reference point for accessing data about the Ethereum blockchain. It is the most used explorer that lets people browse historical data through a web interface. Here users can easily explore transactions, internal calls, token transfers and everything else related to the Ethereum protocol. It is useful for inspecting singular operations, but it can not be used for large-scale analysis.
 
-One of the most important service they offer is the verification of smart contracts, they host 461,261\footnote{This data was calculated using the CSV file exported from https://etherscan.io/chart/verified-contracts} source codes (as of 17 May 2023) that have been verified to match exactly the deployed bytecode on the  Ethereum chain. 
+One of the most important services they offer is the verification of smart contracts, they host 461,261\footnote{This data was calculated using the CSV file exported from \url{https://etherscan.io/chart/verified-contracts}} source codes (as of 17 May 2023) that have been verified to match exactly the deployed bytecode on the Ethereum chain. 
 
-The process of verification consists in providing Etherscan the exact source code of a Smart Contract, the version of the compiler used, the license selected and the contract address to verify. With this information, Etherscan will try to compile the given data and check if the resulting bytecode equals the one deployed on the blockchain. There are plugins for the most used development tools like Remix or Hardhat that ease this process of verification.
+The process of verification consists in providing Etherscan the exact source code of a Smart Contract, the version of the compiler used, the license selected and the contract address to verify. With this information, Etherscan tries to compile the given data and check if the resulting bytecode equals the one deployed on the blockchain. If the check succeeds, then the source code correctly describes the bytecode of the smart contract. There are plugins for the most used development tools like Remix or Hardhat that ease this process of verification.
 
-This data is extremely helpful for understanding the semantic of the code deployed, since it's very hard to get useful insights by just looking at the raw bytecode. Many studies are based on these verified contracts.
+This data is helpful for understanding the semantics of the code deployed, since it is hard to get valuable insights by just looking at the raw bytecode. Many studies are based on these verified contracts.
 
-Etherscan has evolved from being just an Ethereum explorer. They used the huge amount of data they have to create API endpoints and offer these data to users for a fee. These API endpoints include the standard Ethereum JSON-RPC interface and many more advanced methods, like tokens logic and specific indexes not supported by the standard RPC. 
+Etherscan has evolved from being just an Ethereum explorer. They used the huge amount of data they had to create API endpoints and offer these data to users for a fee. These API endpoints include the standard Ethereum JSON-RPC interface. There are also other more advanced indexes not supported by the standard RPC, e.g. transactions by address, ABI of contracts, token transfers.
 
-On top of that, they also provide live and interactive charts\footnote{Available at https://etherscan.io/charts} about historical Ethereum data.
+On top of that, they also provide live and interactive charts\footnote{Interactive charts are available at \url{https://etherscan.io/charts}} about historical Ethereum data.
 
-The same company that is behind the Ethereum Etherscan explorer applied the same logic and technology to other EVM compatible chains, like Polygon\footnote{https://polygonscan.com/} or BNB Smart Chain\footnote{https://bscscan.com/}.
+The same company that is behind the Ethereum Etherscan explorer applied the same logic and technology to other EVM-compatible chains, like Polygon\footnote{Explorer for the Polygon network \url{https://polygonscan.com/}} or BNB Smart Chain\footnote{Explorer for the BNB Smart Chain \url{https://bscscan.com/}}.
 
-It's important to note that, although they provide almost all the possible available Ethereum data, they haven't shared technical details about how this data is extracted or how it is indexed, users need to trust the company. Another problem is that using their data via the API for large scale analysis is unfeasible since it would be too expensive.
-
+It is important to note that, although they provide almost all the possible available Ethereum data, they have not shared technical details about how this data is extracted or how it is indexed. Users need to trust the company. Another problem is that the data they offer is not easy to get and manipulate for large-scale analysis. Their API service is meant to be used by developers for building dApps. It would be too expensive to use it for data analysis on all the history of the chain. 
 
 \section{The Graph}
 
-The Graph~\cite{the-graph} is a decentralized indexing protocol for blockchain data. It allows users to get structured on-chain data from other users via a GraphQL\footnote{GraphQL is an open source query language created by Facebook.} interface. 
+The Graph~\cite{the-graph} is a decentralized indexing protocol for blockchain data. It allows users to get structured on-chain data from other users via a GraphQL\footnote{GraphQL is an open source query language managed by Linux Foundation, originally created by Facebook.} interface. 
 
-All the data is organized is so called \textbf{subgraphs} that are independent data collections that index a small subset of a blockchain network. A common pattern is that a subgraph indexes data from one or a set of few smart contracts all part of a common protocol, like Uniswap\footnote{\url{https://uniswap.org/}}. All the available subgraphs can be found on the explorer\footnote{https://thegraph.com/explorer}.
+All the data is organized in so-called \textbf{subgraphs}, which are independent data collections that index a small subset of a blockchain network. A common pattern is that a subgraph indexes data from one or a set of few smart contracts all part of a common protocol, like Uniswap\footnote{Uniswap is a decentralized cryptocurrency exchange \url{https://uniswap.org/}}. All the available subgraphs can be found on the \textit{Graph Explorer}\footnote{The Graph Explorer collects all the subgraphs of the protocol, it is available at: \url{https://thegraph.com/explorer}}.
 
 The underlying protocol is composed of multiple actors:
 
 \begin{itemize}
-  \item Developers: people with technical knowledge that develop the needed code for creating and maintaining the indexes. As of now, the most important pieces of code needed are the mappings from Ethereum events to the stored data (written in AssemblyScript\footnote{https://www.assemblyscript.org/}, a Typescript-like language that is compiled to WebAssembly) and the subgraph manifest, a structured description of all the parts needed by the subgraph in YAML format.  
-  \item Indexers: they are responsible for operating a node, this implies indexing the data following a subgraph specification and serving queries.
+  \item Developers: people with technical knowledge that develop the needed code for creating and maintaining the indexes. As of now, the most important pieces of code needed are the mappings from Ethereum events to the stored data, written in AssemblyScript\footnote{AssemblyScript is a Typescript-like language that is compiled to WebAssembly.}, and the subgraph manifest, a structured description of all the parts needed by the subgraph in YAML format.  
+  \item Indexers: they are responsible for operating a node. This implies indexing the data following a subgraph specification and serving queries to users.
   \item Curators: they are in charge of finding the best subgraphs to be indexed.
   \item Delegators: they secure the network by locking economical value to certain indexers they choose, giving them the possibility to serve more queries.
 \end{itemize}
 
-All these actors are economically motivated to perform well, this is achieved via a token economy where the GRT is the currency. It is implemented on the Ethereum chain with a standard ERC20 smart contract\footnote{https://etherscan.io/token/0xc944e90c64b2c07662a292be6244bdf05cda44a7}.
+All these actors are economically motivated to perform well. This is achieved via a token economy where the GRT is the currency. It is implemented on the Ethereum chain with an ERC-20 smart contract\footnote{\url{https://etherscan.io/token/0xc944e90c64b2c07662a292be6244bdf05cda44a7}}.
 
 In order to index and serve queries, indexers have to stake at least 100,000 GRT tokens (roughly equal to 12K USD with the current change). These tokens can be slashed in case the indexer behaves maliciously. The more tokens the indexer stakes and the more queries it can serve. At the same time, indexers are rewarded with GRT tokens in two ways: query fees and annual rewards based on amount of queries served.
 
-According to the specification of the subgraph file\footnote{https://github.com/graphprotocol/graph-node/blob/master/docs/subgraph-manifest.md\#15-data-source}, the only allowed source of data are Ethereum contracts and mappings are restricted to Events. Image \ref{fig:the-graph-data-flow} shows the flow of data in the protocol. In most cases, this is enough for dApps, since typically all the smart contracts are written in such a way that they emit events when things happen. 
+According to the specification of the subgraph file\footnote{Specification available at: \url{https://github.com/graphprotocol/graph-node/blob/master/docs/subgraph-manifest.md\#15-data-source}}, the only allowed source of data are Ethereum contracts and mappings are restricted to Events. \Cref{fig:the-graph-data-flow} shows the flow of data in the protocol. In most cases, this is enough for dApps, since typically all the smart contracts are written in such a way that they emit meaningful events when things happen. 
 
 On the other hand, it is not possible to index all the other kind of information for performing other analysis, such as block data, contract deployments, transactions, contracts destruction, etc. It is also not possible to extract data that was not meant to be extracted, since the emitted events are pieces of information that the developers of the smart contracts explicitly wanted to expose and index. 
-
 
 \begin{figure}[H]
   \centering
@@ -61,23 +59,21 @@ On the other hand, it is not possible to index all the other kind of information
   \label{fig:the-graph-data-flow}
 \end{figure}
 
-\footnotetext{Source: https://thegraph.com/docs/en/about/}
+\footnotetext{Source: \url{https://thegraph.com/docs/en/about/}}
 
+As of today, the protocol continues to rely on a centrally hosted service that uses the subgraphs' logic and code to index data, but queries are served from this centralized server for free. This should change later in 2023, the network should slowly migrate from this centralized service to the decentralized protocol once the quality of the service will be comparable\footnote{This transition is explained in details here: \url{https://thegraph.academy/developers/sunsetting-the-hosted-service/}}.
 
-As of today, the protocol still relies on a central hosted service that uses the subgraphs logic and code to index data, but queries are served from this centralized server for free. This should change in 2023, the network should slowly migrate from this centralized service to the decentralized protocol once the quality of the service will be comparable \footnote{https://thegraph.academy/developers/sunsetting-the-hosted-service/}.
-
-The Graph is the first attempt to decentralize indexing of blockchain data, it's still a project with a lot of work behind the scene. It's the most promising mechanism to make Web3 and dApps not dependant from centralized data ingestion services.
-
+The Graph is the first attempt to decentralize indexing of blockchain data, it is still a project with a lot of work behind the scene. It is the most promising mechanism to make Web3 and dApps not dependent on centralized data ingestion services.
 
 \section{Ethereum-ETL}
 
-Ethereum-ETL\footnote{https://github.com/blockchain-etl/ethereum-etl} is an open source tool for extracting data from the Ethereum blockchain following the \textbf{Extract-Transform-Load} pattern. It's written in Python and can be used trough a CLI.
+Ethereum-ETL\footnote{Source code available at: \url{https://github.com/blockchain-etl/ethereum-etl}} is an open-source tool for extracting data from the Ethereum blockchain following the \textbf{Extract-Transform-Load} pattern. It is written in Python and can be used through a CLI.
 
 \noindent Raw data can be extracted to CSV or JSON files using these commands:
 
 \begin{itemize}
     \item \verb|export_blocks_and_transactions|: it calls \verb|eth_getBlockByNumber| RPC and maps the response to two files containing blocks and transactions.
-    \item \verb|export_token_transfers|: it calls \verb|eth_getFilterlogs| applying a filter with the first topic set to \verb|0xddf252...23b3ef|, the Keccak-256 hash of the ERC20 and ERC721 Transfer event signature. Transfers are stored in a single file without distinction between ERC20 or ERC721.   
+    \item \verb|export_token_transfers|: it calls \verb|eth_getFilterlogs| applying a filter with the first topic set to the Keccak-256 hash of the Transfer event signature. Transfers are stored in a single file without distinction between ERC20 or ERC721.   
     \item \verb|export_traces|: it stores the internal transactions calling the \verb|trace_block| method.
 \end{itemize}
 
@@ -86,12 +82,12 @@ Ethereum-ETL\footnote{https://github.com/blockchain-etl/ethereum-etl} is an open
 \begin{itemize}
     \item Transaction receipts and logs starting from transaction hashes exported from \verb|export_blocks_and_transactions|.
     \item Contracts data, starting from the traces stored with \verb|export_traces|.
-    \item Token contracts with metadata, starting from contracts (this requires two previous step of extraction). 
+    \item Token contracts with metadata, starting from contracts (this requires two previous steps of extraction). 
 \end{itemize}
 
 \subsection{Google BigQuery public dataset}
 
-\noindent Ethereum-ETL also allows for streaming these data from an Ethereum node to the console. This functionality is used to ingest data into the popular Ethereum Google BigQuery public dataset\footnote{https://cloud.google.com/blog/products/data-analytics/ethereum-bigquery-public-dataset-smart-contract-analytics}. This dataset is organized in six tables that I'll report here since it's a good representation of the raw data that can be extracted from an Ethereum node.
+\noindent Ethereum-ETL also allows for streaming these data from an Ethereum node to the console. This functionality is used to ingest data into the popular Ethereum Google BigQuery public dataset\footnote{\url{https://cloud.google.com/blog/products/data-analytics/ethereum-bigquery-public-dataset-smart-contract-analytics}}. This dataset is organized in six tables that I report here since it is a good representation of the raw data that can be extracted from an Ethereum node.
 
 \begin{table}[H]
 \centering
@@ -126,7 +122,7 @@ Ethereum-ETL\footnote{https://github.com/blockchain-etl/ethereum-etl} is an open
     \quad- amount & \quad- Integer & \quad- No\\ %& & \\
     \bottomrule
 \end{tabular}
-\caption[Google BigQuery \texttt{Blocks} table]{Description of table Blocks on the Google BigQuery public dataset, from the official docs.}
+\caption[Google BigQuery \texttt{Blocks} table]{Schema of table \textit{Blocks} on the Google BigQuery public dataset. Taken from the official docs.}
 \label{table:bigquery-blocks}
 \end{table}
 
@@ -147,7 +143,7 @@ Ethereum-ETL\footnote{https://github.com/blockchain-etl/ethereum-etl} is an open
     block\_hash & String & Yes \\
     \bottomrule
 \end{tabular}
-\caption[Google BigQuery \texttt{Logs} table]{Description of table Logs on the Google BigQuery public dataset, from the official docs.}
+\caption[Google BigQuery \texttt{Logs} table]{Schema of table \textit{Logs} on the Google BigQuery public dataset. Taken from the official docs.}
 \label{table:bigquery-logs}
 \end{table}
 
@@ -167,7 +163,7 @@ Ethereum-ETL\footnote{https://github.com/blockchain-etl/ethereum-etl} is an open
     block\_hash & String & Yes \\
     \bottomrule
 \end{tabular}
-\caption[Google BigQuery \texttt{Contracts} table]{Description of table Contracts on the Google BigQuery public dataset, from the official docs.}
+\caption[Google BigQuery \texttt{Contracts} table]{Schema of table \textit{Contracts} on the Google BigQuery public dataset. Taken from the official docs.}
 \label{table:bigquery-contracts}
 \end{table}
 
@@ -199,7 +195,7 @@ Ethereum-ETL\footnote{https://github.com/blockchain-etl/ethereum-etl} is an open
     trace\_id & String	& No \\
     \bottomrule
 \end{tabular}
-\caption[Google BigQuery \texttt{Traces} table]{Description of table Traces on the Google BigQuery public dataset, from the official docs.}
+\caption[Google BigQuery \texttt{Traces} table]{Schema of the \textit{Traces} table on the Google BigQuery public dataset. Taken from the official docs.}
 \label{table:bigquery-traces}
 \end{table}
 
@@ -215,7 +211,7 @@ Ethereum-ETL\footnote{https://github.com/blockchain-etl/ethereum-etl} is an open
     value & String	& No	\\
     \bottomrule
 \end{tabular}
-\caption[Google BigQuery \texttt{Token\_transfers} table]{Description of table Token\_transfers on the Google BigQuery public dataset, from the official docs.}
+\caption[Google BigQuery \texttt{Token\_transfers} table]{Schema of table \textit{Token\_transfers} on the Google BigQuery public dataset. Taken from the official docs.}
 \label{table:bigquery-transfers}
 \end{table}
 
@@ -248,30 +244,34 @@ Ethereum-ETL\footnote{https://github.com/blockchain-etl/ethereum-etl} is an open
     receipt\_effective\_gas\_price & Integer	& No	\\
     \bottomrule
 \end{tabular}
-\caption[Google BigQuery \texttt{Transactions} table]{Description of table Transactions on the Google BigQuery public dataset, from the official docs.}
+\caption[Google BigQuery \texttt{Transactions} table]{Schema of table \textit{Transactions} on the Google BigQuery public dataset. Taken from the official docs.}
 \label{table:bigquery-transactions}
 \end{table}
 
 It is possible to query these tables using SQL syntax, they can be joined on equal fields. There is the possibility to query this database for free up to a certain monthly limit of processing storage and amount of data extracted. 
 
-I'll compare Ethereum-ETL with my work in the next chapters.
+\section{Dune Analytics}
 
-\section{Dune analytics}
+Dune Analytics\footnote{Blockchain analytics platform \url{https://dune.com/home}} is a company that provides tools to query and visualize data from multiple blockchains. They support Bitcoin, Solana, Ethereum and other 8 EVM-compatible chains.\\
 
-Dune Analytics\footnote{https://dune.com/home} is a company that provides tools to query and visualize data from multiple blockchains. They support Bitcoin, Solana, Ethereum and other 8 EVM chains.\\
-
-Their application is web-based, from there it is possible to create queries using SQL syntax and visualize results in interactive charts. Multiple queries can be collected together to create dashboards\footnote{Example of a dashboard about history of Ethereum: https://dune.com/hildobby/ethereum}.  
+Their application is web-based. With their web-app it is possible to create queries using SQL syntax and visualize results in interactive charts. Multiple queries can be collected together to create dashboards\footnote{Example of a dashboard about history of Ethereum: \url{https://dune.com/hildobby/ethereum}}.  
 
 \subsection{Data architecture}
 
-Blockchain data was initially managed using PostgreSQL and SparkSQL until 2022, year in which they released their own engine called DuneSQL \footnote{https://dune.com/blog/dune-engine-v2}, migration to this technology is currently ongoing. \\
+Blockchain data was initially managed using PostgreSQL and SparkSQL until 2022, year in which they released their own engine called DuneSQL \footnote{DuneSQL was announced in this blog post: \url{https://dune.com/blog/dune-engine-v2}}. The migration to this technology is currently ongoing. \\
 
 They started storing and indexing data with PostgreSQL.
-In this DBMS entries are stored in pages following a row-oriented strategy, which means that all the attributes of a row are stored adjacently. This is beneficial when it's necessary to retrieve all the attributes of a row while querying. However, it leads to poor performance when filtering for specific attributes, since the database has to load many bytes containing irrelevant data (i.e., all the other attributes of the row that are not used). To optimize this, it is possible to create indexes on columns. These indexes will provide very good performance, but can be hard and slow to maintain, specially with huge amount of data. At Dune Analytics they tried this approach with traditional relational database combined with indexes, but they had to drop it stating that "the size of the datasets were so huge that the database was struggling to fully support them"\footnote{Source: https://dune.com/blog/introducing-dune-sql}. \\
+In this DBMS, entries are stored in pages following a row-oriented strategy, which means that all the attributes of a row are stored adjacently. 
+This strategy is beneficial when it is necessary to retrieve all the attributes of a row while querying. 
+However, it leads to poor performances when filtering for specific attributes, since the database has to load many bytes containing irrelevant data (i.e., all the other attributes of the row that are not used). 
+To avoid this, it is possible to create indexes on columns. 
+Indexes avoid the need to read and filter data. They provide direct access to the location of the requested data.
+Indexes provide very good query performances, but can be hard and slow to maintain when the amount of data grows.
+At Dune Analytics they tried this approach with traditional relational database (PostgreSQL) combined with many indexes, but they had to drop it stating that "the size of the datasets were so huge that the database was struggling to fully support them"\footnote{Source: \url{https://dune.com/blog/introducing-dune-sql}}. \\
 
-So they came up with DuneSQL, a query engine built specifically for managing blockchain data. It's a fork of Trino, an open source distributed SQL query engine designed to query data from heterogeneous sources. The DuneSQL fork is not open source, so technical information can only be deducted from their blog articles or statements on the support community. The main features they added are \textit{varbinary} data type for storing addresses and hashes, as well as \textit{uint256} support for EVM data. \\
+They came up with DuneSQL, a query engine built specifically for managing blockchain data. It is a fork of Trino, an open source distributed SQL query engine designed to query data from heterogeneous sources. The DuneSQL fork is not open source, so technical information can only be deducted from their blog articles or statements on the support community. The main features they added are \textit{varbinary} data type for storing addresses and hashes, as well as \textit{uint256} support for EVM data. \\
 
-Data is physically stored on AWS S3 buckets using the Apache Parquet storage format\footnote{https://github.com/apache/parquet-format}. This storage system is a mix between column and row oriented. Data is split in files based on rows, inside these files, there are further row groups and inside these groups data is divided by columns. Image \ref{fig:parquet-structure} visualize this concept. \\
+Data is physically stored on AWS S3 buckets using the Apache Parquet storage format\footnote{Detailed description of Parquet storage format \url{https://github.com/apache/parquet-format}}. This storage system is a mix between column and row oriented. Data is split in files based on rows, inside these files, there are further row groups and inside these groups data is divided by columns. \cref{fig:parquet-structure} visualize this concept. \\
 
 \begin{figure}[H]
   \centering
@@ -280,9 +280,9 @@ Data is physically stored on AWS S3 buckets using the Apache Parquet storage for
   \label{fig:parquet-structure}
 \end{figure}
 
-\footnotetext{Source: https://github.com/apache/parquet-format}
+\footnotetext{Source: \url{https://github.com/apache/parquet-format}}
 
-Indexing is done using the Parquet file's metadata. At the end of each file there's a part in which are stored min/max values of all the column values inside a page, as shown in image \ref{fig:parquet-index}. This information allows the database to skip reading the whole chunk if values are not in the desired range. While working great for certain types of data, it isn't very useful with strings, especially if they are not sorted. That's the reason why even a simple query like \ref{lst:dune-query} can take several minutes to run. \\
+Indexing is done using the Parquet file's metadata. At the end of each file there is a part in which are stored min/max values of all the column values inside a page, as shown in image \ref{fig:parquet-index}. This information allows the database to skip reading the whole chunk if values are not in the desired range. While working great for certain types of data, it is not very useful with strings, especially if they are not sorted. That is the reason why even very simple queries can take several minutes to run. \cref{lst:dune-query} serves as an example of such a query. \\
 
 \begin{figure}[H]
   \centering
@@ -291,7 +291,7 @@ Indexing is done using the Parquet file's metadata. At the end of each file ther
   \label{fig:parquet-index}
 \end{figure}
 
-\footnotetext{Source: https://dune.com/docs/query/storage/}
+\footnotetext{Source: \url{https://dune.com/docs/query/storage/}}
 
 \begin{lstlisting}[language=SQL,caption={Shortened simple query on DuneSQL that took 3 minutes to run},label={lst:dune-query},captionpos=b]
 Select * from ethereum.transactions
@@ -305,40 +305,40 @@ On Dune Analytics, blockchain data is available in multiple layers:
 \begin{itemize}
     \item \textit{Raw tables}: these tables contain raw data as it is stored on the various blockchains, without modifications. For EVM chains this means Blocks, Logs, Traces and Transactions.
     \item \textit{Decoded tables}: verified contracts receive their own tables on which data is stored in a more readable way. Each event and function that is present in the contract's ABI corresponds to a table on Dune with the following name pattern: \texttt{project\_chain.contract\_[evt/call]\_evtOrCallName}. Inside this table there will be columns for each of the event or function attributes, with the relative names. For example, all the \textit{cryptokitties} \texttt{Transfer} events are stored in a table called \texttt{cryptokitties\_ethereum.KittyCore\_evt\_Transfer} that will have, among other contextual information, three columns: \textit{from}/\textit{to} addresses and \textit{tokenId}.
-    \item \textit{Spellbooks}: these tables are abstractions over raw and decoded data that give users an easy way to retrieve information without diving into the technicalities of complex decentralized protocols. They're open source and the community can contribute creating new spellbooks on the Github Repository\footnote{https://github.com/duneanalytics/spellbook}. The main power of spellbooks is to put together data from heterogeneous sources to gather useful insights. The most clear example is the \texttt{dex.trades}\footnote{https://github.com/duneanalytics/spellbook/blob/main/models/dex/dex\_trades.sql} spellbook, that puts together all the trades made on all decentralized exchanges of all the blockchains present on Dune Analytics.
+    \item \textit{Spellbooks}: these tables are abstractions over raw and decoded data that give users an easy way to retrieve information without diving into the technicalities of complex decentralized protocols. They are open source and the community can contribute creating new spellbooks on the Github Repository\footnote{All the spellbooks can be found on the Github repository: \url{https://github.com/duneanalytics/spellbook}}. The main power of spellbooks is to put together data from heterogeneous sources to gather useful insights. One of the clearest example is the \texttt{dex.trades}\footnote{Source code of the \texttt{dex.trades} spellbook: \url{https://github.com/duneanalytics/spellbook/blob/main/models/dex/dex\_trades.sql}} spellbook, that puts together all the trades made on all decentralized exchanges of all the blockchains present on Dune Analytics.
 \end{itemize}
 
 \section{XBlock-ETH}
 
-Zheng et al.~\cite{xblock-eth} released a dataset containing raw Ethereum data and described the framework used for getting it, called XBlock-ETH. It was released in 2019 and data is periodically updated in chunks of 500,000 blocks, currently it covers blocks from 0 to 16,499,999. It is divided in different smaller datasets: \textit{Block}, \textit{Block Transaction}, \textit{Internal Transaction}, \textit{Contract Info}, \textit{ERC20 Transaction}, \textit{ERC721 Transaction}, \textit{Token Info}. Data can be downloaded from their website\footnote{https://xblock.pro/xblock-eth.html} in CSV format.
+Zheng et al.~\cite{xblock-eth} released a dataset containing raw Ethereum data and described the framework used for getting it, called XBlock-ETH. It was released in 2019. Data is periodically updated in chunks of 500,000 blocks, it currently covers blocks from 0 to 16,499,999. It is divided in different smaller datasets: \textit{Block}, \textit{Block Transaction}, \textit{Internal Transaction}, \textit{Contract Info}, \textit{ERC20 Transaction}, \textit{ERC721 Transaction}, \textit{Token Info}. Data can be downloaded from their website\footnote{Xbloxk website where it\url{https://xblock.pro/xblock-eth.html}} in CSV format.
 
 This is a useful resource for getting Ethereum data without having the possibility to run a node; however it lacks important information such as logs and receipts. 
 
-It's not easy to use, since the massive amount of data in the CSV files must be parsed and cannot be easily queried or indexed, further transformation steps are needed. There are some Python scripts available on Github\footnote{https://github.com/tczpl/XBlock-ETH} for downloading and analysing the data, but the code used for the extraction is not open source, so it's not possible to know exactly how information was retrieved.
+It is not easy to use, since the massive amount of data in the CSV files must be parsed and cannot be easily queried or indexed, further transformation steps are needed. There are some Python scripts available on Github\footnote{Repository of XBlock-ETH: \url{https://github.com/tczpl/XBlock-ETH}} for downloading and analysing the data, but the code used for the extraction is not open source, so it is not possible to know exactly how information was retrieved.
 
 \section{Data-ether}
 
-DateEther \cite{dataether} is a framework presented by Chen et al. for extracting and indexing Ethereum data. They tried a different approach for executing this task: they modified a Geth\footnote{https://geth.ethereum.org/} node to record and store data during the initial synchronization phase. They used ElasticSearch\footnote{https://www.elastic.co/} for indexing and exploring data, but by the time of their research the size of data was relatively small compared to now.
+DateEther \cite{dataether} is a framework presented by Chen et al. for extracting and indexing Ethereum data. They tried a different approach for executing this task: they modified a Geth node to record and store data during the initial synchronization phase. They used ElasticSearch\footnote{ElasticSearch is a search engine based on the Lucene library \url{https://www.elastic.co/}} for indexing and exploring data, but by the time of their research the size of data was relatively small compared to now.
 
-While extracting data by modifying a node source code was efficient back in 2019, now Ethereum nodes have evolved and there are different and faster RPCs for getting internal transactions. Their way of extracting data was compared against \texttt{debug\_traceTransaction} RPC of Geth, claiming to be 18.6x faster, but it wasn't compare against \texttt{debug\_traceBlock} or \texttt{trace\_block} of Erigon\footnote{https://github.com/ledgerwatch/erigon}. From my work, using Erigon's \texttt{trace\_block} RPC, I managed to get and loop trough all the internal transactions in around 9 hours (40 including transactions and logs). Doing that while synchronizing a node would have required at least 3-4 days. 
+While extracting data by modifying a node source code was efficient back in 2019, now Ethereum nodes have evolved and there are different and faster RPCs for getting internal transactions. Their way of extracting data was compared against \texttt{debug\_traceTransaction} RPC of Geth, claiming to be 18.6x faster, but it was not compared against \texttt{debug\_traceBlock} or \texttt{trace\_block} of Erigon. From my work, using Erigon's \texttt{trace\_block} RPC, I managed to get and loop trough all the internal transactions in around 7 hours. Doing that while synchronizing a node would have required at least 3-4 days. 
 
-Extracting data by modifying source code has another drawback: maintainability. Just Geth itself received 173 releases\footnote{https://github.com/ethereum/go-ethereum/releases}, modifying its source code would mean having to merge the code and resolving eventual conflicts every time a new release is published. This is not a problem using Ethereum RPC APIs since they don't change after upgrades of the nodes.
+Extracting data by modifying source code has another drawback: maintainability. Just Geth itself received 173 releases\footnote{Data obtained from the Github releases page: \url{https://github.com/ethereum/go-ethereum/releases}}, modifying its source code would mean having to merge the code and resolving eventual conflicts every time a new release is published. This is not a problem using Ethereum RPC APIs since they do not change after upgrades of the nodes.
 
 \section{Web3 providers}
 
-The term "Web3 provider" is commonly used to refer to companies that offer access to Ethereum RPC API, avoiding developers of Web3 dApps the costs of running a node. They're included in this chapter since the majority of them also provide access to indexed and interpreted data. Some popular web3 providers include Alchemy\footnote{https://www.alchemy.com/}, Infura\footnote{https://www.infura.io/}, Quicknode\footnote{https://www.quicknode.com/} and Chainstack\footnote{https://chainstack.com/}.
+The term \textit{Web3 provider} is commonly used to refer to companies that offer access to Ethereum RPC API, avoiding developers of Web3 dApps the costs of running a node. They are included in this chapter since the majority of them also provide access to more sophisticated indexed and interpreted data. Some popular web3 providers include Alchemy\footnote{\url{https://www.alchemy.com/}}, Infura\footnote{\url{https://www.infura.io/}}, Quicknode\footnote{\url{https://www.quicknode.com/}} and Chainstack\footnote{\url{https://chainstack.com/}}.
 
-All of them have endpoints for getting NFTs data, it's possible to get all NFTs owned by an address by just calling an API instead of having to analyze all the chain. Chainstack also hosts on their servers all the supgraphs of "The Graph" protocol, offering users the possibility to use a more stable service instead of the decentralized alterntive.
+All of them have endpoints for getting NFTs data. It is possible to get all NFTs owned by an address by just calling an API instead of having to analyze all the chain. Chainstack also hosts on their servers all the supgraphs of \textit{The Graph} protocol, offering users the possibility to use a more stable service instead of the decentralized alternative.
 
-It is important to note that the web3 providers are profit-oriented companies. While they provide an important service in the world of dApps, it's essential to consider their cost implications. Using their services for analyzing historical data can be very expensive, since billing is done based on number of API requests to their server.
+It is important to note that the web3 providers are profit-oriented companies. While they provide an important service in the world of dApps, it is essential to consider their cost implications. Using their services for analyzing historical data can be very expensive, since billing is done based on number of API requests to their server.
 
-Another important aspect to consider is the transparency of these services. As profit-oriented entities, these web3 providers do not necessarily make their source code and methodology open source. This means that developers relying on their services need to trust the data they receive. 
+Another important aspect to consider is the transparency of these services. As profit-oriented entities, these web3 providers do not necessarily make their source code and methodology open-source. This means that developers relying on their services need to trust the data they receive. 
 
 Depending on centralized companies poses also a risk to the actual decentralization of the web3. Access to the blockchain infrastructure is concentrated on a few companies, as noted by Wang et al.~\cite{wang2022exploring}.
 
 \section{Comparison}
 
-I summarized in table \ref{table:tools-comparison} the main differences between the tools in terms of \textit{primary target}, \textit{transparency} and \textit{price}.
+\cref{table:tools-comparison} summarises the main differences between the analyzed tools in terms of \textit{primary target}, \textit{transparency} and \textit{price}.
 
 \begin{table}[ht!]
 \centering
@@ -357,7 +357,7 @@ I summarized in table \ref{table:tools-comparison} the main differences between 
     \bottomrule
     \end{tabular}
     \begin{tablenotes}
-      \item[*] Source code not available, but they released technical papers describing the software.
+      \item[*] Source code not available, but technical papers describing the software were released.
       \end{tablenotes}
     \end{threeparttable}
 \caption[State of the art tools comparison]{Comparison of state-of-the art tools for management of blockchain data.}
