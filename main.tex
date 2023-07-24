@@ -7,15 +7,17 @@
 \setcounter{tocdepth}{2} %table of contents number depth for subsections (2 = x.x.x)
 \setcounter{secnumdepth}{4} %numbering depth for headers for subsections in the text(4 = x.x.x.x)
 \usepackage{url} %to include urls
-\usepackage{listings} %include this if you want to include code in the thesis
+\usepackage{listings, listings-rust} %include this if you want to include code in the thesis
 \usepackage{amsmath,amssymb} %mathematical package
 \usepackage{siunitx} %includes SI-units
-\usepackage[bf]{caption} %makes float captions bold
+\usepackage[labelfont=bf,
+   justification=justified,
+   format=plain]{caption}  %makes float captions bold
 \usepackage{array, booktabs} %to make better tables
 \usepackage{graphicx} %to include graphics
 \usepackage{float} %to include floats
 \usepackage[export]{adjustbox} %to adjust floats
-\usepackage{subfig} %to include subfigures
+\usepackage{subfigure} %to include subfigures
 \usepackage{chngcntr} %will make it possible to change the counter for tables, figures etc. such as below
 \counterwithin{figure}{section} %change counter for figures within sections (also possible to choose for each chapter
 \counterwithin{table}{section} %change counter for tables within sections
@@ -38,6 +40,9 @@
     } %sets new page command to insert an empty page without adding to the page counter or having a page number
 
 %%% ADDED BY ME
+\interfootnotelinepenalty=10000
+
+\usepackage{tikz}
 
 \usepackage[para,online,flushleft]{threeparttable}
 
@@ -80,12 +85,6 @@
 
 
 \begin{document}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\begin{comment}
-% The title page:
-% For NTNU students this page will be generated automatically when submitting your paper, and should not be included in the final file from Latex. Delete or comment out the title page setup. The final report should then start with the first page being the abstract. I have included a title page here so it is possible to see how it may look like, and for those who does not get an automatically generated title page. Of course you will need to change the names and titles etc. to your case.
-
-%the title page should be an odd page (right hand side)
 
 \begin{titlepage}
 \newgeometry{left=1.6in, right=2in}

@@ -67,7 +67,7 @@ The Graph is the first attempt to decentralize indexing of blockchain data, it i
 
 \section{Ethereum-ETL}
 
-Ethereum-ETL\footnote{Source code available at: \url{https://github.com/blockchain-etl/ethereum-etl}} is an open-source tool for extracting data from the Ethereum blockchain following the \textbf{Extract-Transform-Load} pattern. It is written in Python and can be used through a CLI.
+Ethereum-ETL~\cite{ethereum-etl}~is an open-source tool for extracting data from the Ethereum blockchain following the \textbf{Extract-Transform-Load} pattern. It is written in Python and can be used through a CLI.
 
 \noindent Raw data can be extracted to CSV or JSON files using these commands:
 
@@ -85,9 +85,11 @@ Ethereum-ETL\footnote{Source code available at: \url{https://github.com/blockcha
     \item Token contracts with metadata, starting from contracts (this requires two previous steps of extraction). 
 \end{itemize}
 
+Ethereum-ETL also provides the command {\tt export\_all} to perform extraction of all the common data in a single step (blocks, transactions, receipts, logs, contracts, token transfers and token metadata). However, this command is not present in the documentation and it can not extract contracts deployed by other contracts, just the ones deployed by Externally Owned Accounts. 
+
 \subsection{Google BigQuery public dataset}
 
-\noindent Ethereum-ETL also allows for streaming these data from an Ethereum node to the console. This functionality is used to ingest data into the popular Ethereum Google BigQuery public dataset\footnote{\url{https://cloud.google.com/blog/products/data-analytics/ethereum-bigquery-public-dataset-smart-contract-analytics}}. This dataset is organized in six tables that I report here since it is a good representation of the raw data that can be extracted from an Ethereum node.
+\noindent Ethereum-ETL also allows for streaming data from an Ethereum node to the console. This functionality is used to ingest data into the popular Ethereum Google BigQuery public dataset\footnote{\url{https://cloud.google.com/blog/products/data-analytics/ethereum-bigquery-public-dataset-smart-contract-analytics}}. This dataset is organized in six tables that I report here since it is a good representation of the raw data that can be extracted from an Ethereum node.
 
 \begin{table}[H]
 \centering
@@ -363,3 +365,5 @@ Depending on centralized companies poses also a risk to the actual decentralizat
 \caption[State of the art tools comparison]{Comparison of state-of-the art tools for management of blockchain data.}
 \label{table:tools-comparison}
 \end{table}
+
+My work aims to provide an open source alternative for accessing Ethereum data. The main target are data analysts. It is mostly inspired by Ethereum-ETL, but with particular focus on performance and semantics of smart contracts. Data is indexed using a particular graph database, Dgraph, that was not used in the other works.
