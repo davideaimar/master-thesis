@@ -227,6 +227,7 @@ Eth2dgraph tries to put together pieces of information to allow for an easier an
 
 \subsection{ABI extraction}
 
+\label{decompilation-section}
 Smart contracts are described by an \textbf{Application Binary Interface} (ABI) that lists all the functions and events that are implemented. 
 
 Smart contracts can be seen as REST APIs. The application status is stored in the contract's private code, similar to a database.
@@ -341,7 +342,7 @@ All these tasks are ran on the multi-threaded Tokio runtime. They are managed by
 In this way it is possible to maximize the parallelism of the extraction process. For example, when a task is downloading block's data, it calls \texttt{await} on the library function responsible for networking. This call tells the Tokio scheduler that the task is paused and cannot continue, so it is replaced with another task that has work to do.
 
 \subsection{Decompilation cache}
-
+\label{cachine-section}
 One of the biggest bottlenecks of the extraction process was the decompilation step. Spawning a dedicated process for handling decompilation of each contract deployment takes a lot of time. The main problem is that the decompiler, for how it is designed, can encounter infinite loops during the building of the control flow graph. To avoid that, it is ran with a timeout of a few seconds, but even with that, it was slowing down the process by a lot.
 
 The solution implemented in eth2dgraph is caching the decompilation based on bytecode skeletons. Two contract deployments sharing the same EVM skeleton are decompiled only once. The decompiled ABI of a skeleton comes from the decompilation of the first contract found with that skeleton.
@@ -386,7 +387,7 @@ This way of extracting semantics has a direct implication on the schema of data.
 \end{figure}
 
 \section{Similarity calculation}
-
+\label{similarity-calculation}
 Smart contracts' deployments are clustered based on bytecode skeletons: many smart contracts share the same skeleton and thus they are linked to the same skeleton's entity in the database. To link these skeleton clusters together, some similarity metrics are needed. Linking skeleton clusters helps the process of data analysis; it ease the recognition of patterns and connections.
 
 Eth2dgraph implements two similarity metrics:
