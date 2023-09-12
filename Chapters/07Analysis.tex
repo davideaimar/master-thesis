@@ -1,3 +1,5 @@
+\label{chapter-6}
+
 In this chapter I analyse the data that have been extracted by eth2dgraph. Each section describes an independent analysis.
 
 All the results refer to data from block $0$ to block $17,265,420$ of the Ethereum mainnet. It corresponds to the period of time between July 30 2015 to May 15 2023 (7 years, 9 months and 15 days).
@@ -64,7 +66,7 @@ The distribution of smart contracts by skeleton is not uniform. There are 361,54
 
 \subsection{Most deployed skeletons}
 
-I here analyze the top 10 skeletons found on the Ethereum chain by number of deployments. These 10 distinct skeleton corresponds together to 44,389,576 smart contract deployments (73.96\% of the total).
+I here analyze the top 10 skeletons found on the Ethereum chain by number of deployments. These 10 distinct skeletons corresponds together to 44,389,576 smart contract deployments (73.96\% of the total).
 
 \begin{itemize}
 
@@ -346,7 +348,7 @@ I identified all the gas reserves using the skeletons. There are five distinct s
     \label{table:gas-reserve-deployments}
 \end{table}
 
-A total of 21,741,830 gas reserve deployments were found, more than one third of all the deployments of Ethereum. 90.1\% of them have been destroyed, the remaining contracts are still live. Users should pay gas to destroy them but without a reward is very unlikely that this will happen. There are 2,158,422 contracts that can potentially be stuck there forever since there is no incentive in removing them from the blockchain. The timeline of deployments and destructions is shown in \cref{fig:gastokens-timeline}. It is clearly visible how the London upgrade successfully killed this pattern.
+A total of 21,741,830 gas reserve deployments were found, more than one third of all the deployments of Ethereum. 90.1\% of them have been destroyed, the remaining contracts are still alive. Users should pay gas to destroy them but without a reward is very unlikely that this will ever happen. There are 2,158,422 contracts that can potentially be stuck there forever since there is no incentive in removing them from the blockchain. The timeline of deployments and destructions is shown in \cref{fig:gastokens-timeline}. It is clearly visible how the London upgrade successfully killed this pattern.
 
 \begin{figure}[H]
     \centering
@@ -410,7 +412,7 @@ saved = df['profit'].sum()
 
 Understanding what are the most commonly used functions and events can give a hint on what most of the smart contracts are doing.
 
-I here present the most frequently deployed functions and events extracted using the Heimdall EVM decompiler. As explained in \cref{decompilation-section,cachine-section} the decompilation is performed on the deployed bytecode of the smart contract, with a caching logic based on EVM skeletons. This means that two contracts sharing the same EVM skeleton received just one decompilation and the linked functions and events are the same. The numbers of this analysis directly depend on the accuracy of the decompiler.
+I present in~\cref{table:top-functions,table:top-events} the most frequently deployed functions and events extracted using the Heimdall EVM decompiler. As explained in \cref{decompilation-section,cachine-section} the decompilation is performed on the deployed bytecode of the smart contract, with a caching logic based on EVM skeletons. This means that two contracts sharing the same EVM skeleton received just one decompilation and the linked functions and events are the same. The numbers of this analysis directly depend on the accuracy of the decompiler.
 
 \begin{table}[H]
 \centering
@@ -510,7 +512,7 @@ Out of the 17,491,909 deployments that included the CBOR encoded data, 1,113,139
 
 \subsection{Solc versions}
 
-2,090,487 smart contracts included the version of the Solidity compiler in the CBOR-encoded data. The version is included just from Solidity v0.5.9 onward. There are 1,299 smart contracts that included fake Solidity versions (e.g. 100.67.137, 116.153.33, etc.) and were removed in this analysis. 32 deployments were found to use a pre-releases of the compiler, in these cases Solidity appends the exact commit used. The total numbers of major versions found are reported in~\cref{table:solc-majors}.
+2,090,487 smart contracts included the version of the Solidity compiler in the CBOR-encoded data. The version is included just from Solidity v0.5.9 onward. There are 1,299 smart contracts that included fake Solidity versions (e.g. 100.67.137, 116.153.33, etc.) and were removed in this analysis. 32 deployments were found to use pre-releases of the compiler, in these cases Solidity appends the exact commit used. The total numbers of major versions found are reported in~\cref{table:solc-majors}.
 
 \begin{table}[ht]
 \centering

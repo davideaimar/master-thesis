@@ -1,11 +1,10 @@
+Blockchain technology has become a popular tool used in many sectors. Modern protocols allow developers to build applications that extend the advantages of a decentralized network to tackle different real-world problems. Ethereum is one of the most used blockchain protocols. Every twelve seconds, a new block is appended to this chain, and it contains plenty of useful information that describes a market worth billions of dollars. This raw data is available to everyone without restrictions, but it is not easy to query and analyze without proper tools. 
 
-Write an abstract/summary of your thesis, and state your main findings here. \\
+This master's thesis focuses on making this data easily available to users by indexing it with Dgraph, an open-source distributed graph database. 
 
-\noindent A summary should be included in both English and any second language, if this is applicable, regardless if the thesis is written in English or in your preferred language. These should be on separate pages, the English version first.
+A review of the state-of-the-art tools showed that a lot of work in this field has been done by private companies whose source code and methodology are not available. Open source and public attempts have resulted in being outdated or too slow for performing all the extraction on a single machine. This poses the risk of centralizing access to blockchain data in the hands of a few companies.
 
+Part of this master's thesis has been dedicated to analyzing the semantics that can be extracted from the blockchain and building a data schema around it that is optimized for graph databases. To perform the actual extraction, I propose \textit{eth2dgraph}. It is an open-source tool written in \textit{Rust} that maps Ethereum data to Dgraph format. It integrates a decompiler to extract and index the ABI of smart contracts. It has been developed to maximize performance to allow faster extractions. At the end of the thesis, an analysis of the extracted data has been conducted to show the current state of the Ethereum blockchain.
 
-
-
-
-
+This work aims to provide an alternative solution to the problem of blockchain data analysis. The open-source nature of the project will allow other developers to build on top of it. Performing the actual extraction and indexing almost hit the limit of what can be done on a single machine, highlighting the fact that in the future, distributed approaches will be the only possible way of handling the increasing amount of data that comes from the Ethereum blockchain. This is already evident with layer 2 protocols, which are generating data at a faster pace than Ethereum.
 

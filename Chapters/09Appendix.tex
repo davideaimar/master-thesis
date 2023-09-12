@@ -3,17 +3,18 @@
 \chapter*{A - Github repository}
 \addcontentsline{toc}{chapter}{\protect\numberline{}A - Github repository} 
 
-All code and latex-files used in this document are included in the Github repository linked below. Further explanations are given in the readme-file. 
-
+The repository containing the code of eth2dgraph is available online along with an explanation of how to run the tool.
 
 \subsection*{Github repository link}
 \begin{itemize}
-    \item \url{https://github.com/ninasalvesen/thesis_latex_template}
+    \item \url{https://github.com/davideaimar/eth2dgraph}
 \end{itemize}
 
 \chapter*{B - Complete schema of indexed data}
 {\label[appendix]{app-b}}
 \addcontentsline{toc}{chapter}{\protect\numberline{}B - Complete schema of indexed data} 
+
+Here are both the DQL and GraphQL specifications of the schema of the data extracted. 
 
 \begin{lstlisting}[
 caption={DQL schema of indexed data}
@@ -400,13 +401,66 @@ caption={Data returned from eth\_getBlockByNumber RPC with hydrated transactions
 label={lst:block-data-rpc}
 ]
 {
-    "transactions": [
-        ...,
-        {
-        
-        },
-        ...
-    ]
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+        "baseFeePerGas": "0x1ced5e1e0c",
+        "difficulty": "0x0",
+        "extraData": "0x7273796e632d6275696c6465722e78797a",
+        "gasLimit": "0x1c9c380",
+        "gasUsed": "0xd0b9ef",
+        "hash": "0x...",
+        "logsBloom": "0x...",
+        "miner": "0x1f9090aae28b8a3dceadf281b0f12828e676c326",
+        "mixHash": "0x...",
+        "nonce": "0x0000000000000000",
+        "number": "0x1067381",
+        "parentHash": "0x...",
+        "receiptsRoot": "0x...",
+        "sha3Uncles": "0x...",
+        "size": "0x135f5",
+        "stateRoot": "0x...",
+        "timestamp": "0x6455fe73",
+        "totalDifficulty": "0xc70d815d562d3cfa955",
+        "transactions": [
+            ...,
+            {
+                "blockHash": "0x...",
+                "blockNumber": "0x1067381",
+                "from": "0x...",
+                "gas": "0x1725d",
+                "gasPrice": "0x1cf069692b",
+                "maxPriorityFeePerGas": "0x30b4b1f",
+                "maxFeePerGas": "0x1df5b2c880",
+                "hash": "0x...",
+                "input": "0x...",
+                "nonce": "0x8",
+                "to": "0x...",
+                "transactionIndex": "0x9b",
+                "value": "0x0",
+                "type": "0x2",
+                "accessList": [],
+                "chainId": "0x1",
+                "v": "0x1",
+                "r": "0x...",
+                "s": "0x..."
+                },
+                ...
+        ],
+        "transactionsRoot": "0x...",
+        "uncles": [],
+        "withdrawals": [
+            ...,
+            {
+                "index": "0x285032",
+                "validatorIndex": "0x7125d",
+                "address": "0x562ab7dca86f8947f5b066a663d83452954a71a2",
+                "amount": "0xbcd8a1"
+            },
+            ...
+        ],
+        "withdrawalsRoot": "0x..."
+    }
 }
 \end{lstlisting}
 
@@ -416,13 +470,29 @@ label={lst:block-data-rpc}
 caption={Data returned from eth\_getLogs RPC},
 label={lst:log-data-rpc}
 ]
-[
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": [
     ...,
     {
-    
+      "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "topics": [
+        "0x...",
+        "0x...",
+        "0x..."
+      ],
+      "data": "0x...",
+      "blockNumber": "0xe524e1",
+      "transactionHash": "0x...",
+      "transactionIndex": "0xb",
+      "blockHash": "0x...",
+      "logIndex": "0x0",
+      "removed": false
     },
     ...
-]
+  ]
+}
 \end{lstlisting}
 
 \subsection*{trace\_block}
@@ -431,11 +501,33 @@ label={lst:log-data-rpc}
 caption={Data returned from trace\_block RPC},
 label={lst:trace-data-rpc}
 ]
-[
-    ...,
-    {
-    
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": [
+  ...,
+  {
+    "action": {
+      "from": "0xaeec6f5aca72f3a005af1b3420ab8c8c7009bac8",
+      "callType": "call",
+      "gas": "0x11170",
+      "input": "0x",
+      "to": "0xef86d3164a50df780e24e9226bcddf3c8606e424",
+      "value": "0x2b5e3af16b1880000"
     },
-    ...
-]
+    "blockHash": "0x...",
+    "blockNumber": 5469798,
+    "result": {
+      "gasUsed": "0x0",
+      "output": "0x"
+    },
+    "subtraces": 0,
+    "traceAddress": [],
+    "transactionHash": "0x...",
+    "transactionPosition": 0,
+    "type": "call"
+  },
+  ...
+  ]
+}
 \end{lstlisting}

@@ -1,20 +1,52 @@
 
-Since the publication of the Bitcoin~\cite{bitcoin} whitepaper by the pseudonym {\tt Satoshi Nakamoto} in 2008, the concept of blockchain has gained more and more popularity. The technology has evolved and has became more sophisticated, allowing for more complex use cases than just preventing double spending in money transfers. This was allowed by the use of Smart Contracts, immutable and deterministic pieces of code that rule the behaviour of a network.
-
-\noindent They were first implemented in 2015 by the Ethereum blockchain~\cite{Ethereum}, the first of many "Blockchain 2.0" that allowed developers to build decentralized applications based on Smart Contracts. 
-
-\noindent In this work I'll extract semantics from the Ethereum Smart Contracts and index this information using Dgraph~\cite{dgraph}, a distributed graph database.
-
 \section{Motivation}
 
-Ethereum is a permissionless blockchain, it can be seen as a digital public ledger. It can be modified just through append operations and is historically immutable. One of the main strengths of this kind of network is the fact that the public ledger is transparent, that means everyone can independently download and access it without permissions.
+Since the publication of the Bitcoin~\cite{bitcoin} whitepaper by the pseudonym {\tt Satoshi Nakamoto} in 2008, the concept of blockchain has gained more and more popularity. The technology has evolved and has became more sophisticated, allowing for more complex use cases than just preventing double spending in money transfers. This was allowed by the use of Smart Contracts, immutable\footnote{The theoretical immutability of smart contracts is analyzed more in depth in chapter 6.} and deterministic pieces of code that rule the outcome of transactions based on the logic written in the code.
 
-\noindent Reading and understanding this public ledger can bring huge value, since it describes all the history of a market that, as of now, is valued hundreds billions of dollars. Apart from the economical aspects, the knowledge of on-chain data is an essential building block for dApps, that are, by definition, applications which interact with Smart Contracts.
+They were first implemented in 2015 by the Ethereum blockchain~\cite{Ethereum}, the first of many "Blockchain 2.0" that allowed developers to build decentralized applications based on Smart Contracts. 
 
-\noindent Unfortunately, as noted also in other works \cite{dataether,xblock-eth,ethereum_query_language}, extracting and analyzing data from the Ethereum blockchain is not an easy task. The reason is that the amount of data is huge and Ethereum nodes store it for optimizing storage instead of the ease of access.
+Ethereum is a permissionless blockchain, it can be seen as a digital public ledger. It can be modified just through append operations and is historically immutable. One of the main strengths of this kind of blockchain is the fact that the public ledger is transparent, so everyone can independently download and access it without permissions.
 
-\noindent My work aims to ease the access to Smart Contracts and describe a way to do it. The outcome is ...
+Reading and understanding this public ledger can bring huge value, since it describes all the history of a market that, as of now, is valued hundreds billions of dollars. Apart from the economical aspects, the knowledge of on-chain data is an essential building block for dApps, that are, by definition, applications which interact with Smart Contracts.
 
+Unfortunately, as noted also in other works \cite{dataether,xblock-eth,ethereum_query_language}, extracting and analyzing data from the Ethereum blockchain is not an easy task. The reason is that the amount of data is huge and Ethereum nodes store it for optimizing storage instead of the ease of access. 
 
-\section{Project description}
+It is possible to query the Ethereum nodes by just a few parameters, such as transaction hashes, block numbers and indexed log topics. 
+Without an external index, it is impossible to search data based on any other attribute.
+
+My work aims to ease the access to on-chain data and describes a way to do it. 
+
+\section{Research questions}
+
+To better define this thesis, two research questions were defined:
+
+\begin{itemize}
+    \item \textbf{RQ1}: What kind of information is it possible to extract from EVM blockchains without relying on centralized services?
+    \item \textbf{RQ2}: Is it feasible to independently extract and index the entire history of the Ethereum blockchain on a single machine?
+\end{itemize} 
+
+\section{Contribution}
+
+This thesis provides multiple contributions to the topic of data mining from the Ethereum blockchain:
+
+\begin{itemize}
+    \item A research on the main state-of-the-art tools, highlighting their pros and cons.
+    \item The release of \textbf{eth2dgraph}, an open-source software written in \textit{Rust} that efficiently extracts data from the Ethereum blockchain to be indexed and queried with \textit{Dgraph}, a distributed graph database. 
+    \item An analysis of the Ethereum data, both in terms of infrastructure and time needed to perform extraction and indexing and in terms of what semantics can be extracted.
+\end{itemize}
+
+Along the way, I had the opportunity to contribute to the open-source community by fixing issues I encountered in the tools I used.
+
+\section{Outline}
+
+The next chapters of this thesis as structured as follows:
+
+\begin{itemize}
+    \item \hyperref[chapter-2]{\textbf{Chapter 2 - Background}}: in this chapter, the fundamentals of the blockchain technology are explained, with a particular focus on Ethereum. There is also a section that explains how Dgraph works. 
+    \item \hyperref[chapter-3]{\textbf{Chapter 3 - Previous work}}: in this chapter, each section describes a work done in the field of data extraction and/or indexing of blockchain data.
+    \item \hyperref[chapter-4]{\textbf{Chapter 4 - Methods}}: here it is described in details how eth2dgraph works. It is shown how each piece of information has been extracted.
+    \item \hyperref[chapter-5]{\textbf{Chapter 5 - Results}}: this chapter shows the outcome of running eth2dgraph using a local Ethereum node to extract and index all the history of the chain.  
+    \item \hyperref[chapter-6]{\textbf{Chapter 6 - Analysis of data}}: in this chapter there are six independent analysis on the data extracted that show the state of the chain.
+    \item \hyperref[chapter-7]{\textbf{Chapter 7 - Conclusions}}: the last chapter summarizes the main findings, propose future work and more generally discusses the upcoming challenges of the sector.
+\end{itemize}
 
