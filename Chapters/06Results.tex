@@ -106,18 +106,18 @@ To give a clearer overview of the environment in which data extraction was done,
 \end{comment}
 
 
-\section{Optimal number of concurrent tasks}
+\section{Optimal number of concurrent tasks} 
 
-Eth2dgraph can be run with a variable amount of concurrent tasks that perform data extraction. This value can be set with the {\tt --num-tasks} option. Having too many concurrent tasks can overload the system where eth2dgraph is ran or the Ethereum node used, while having just few tasks make the extraction process very slow. 
-
-To find a good value for the number of tasks, I ran eth2dgraph with different amount of tasks over one million blocks, from 10M to 11M. \cref{fig:num-tasks} shows the results of this test. As observed from the data, the optimal number of tasks for the machine used is around 2048, that is eight times the amount of available threads.
-
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=0.8\textwidth]{Figures/results/num-tasks.png}
     \caption{Extraction time varying the number of concurrent tasks.}
     \label{fig:num-tasks}
 \end{figure}
+
+Eth2dgraph can be run with a variable amount of concurrent tasks that perform data extraction. This value can be set with the {\tt --num-tasks} option. Having too many concurrent tasks can overload the system where eth2dgraph is ran or the Ethereum node used, while having just few tasks make the extraction process very slow.
+
+To find a good value for the number of tasks, I ran eth2dgraph with different amount of tasks over one million blocks, from 10M to 11M. \cref{fig:num-tasks} shows the results of this test. As observed from the data, the optimal number of tasks for the machine used is around 2048, that is eight times the amount of available threads.
 
 \section{Extraction of data}
 
@@ -140,7 +140,7 @@ eth2dgraph extract \
 
 \cref{table:extraction-stats} reports general statistics about the extraction process. The detailed sizes of the output folders are reported in \cref{table:extraction-output}.
 
-\cref{fig:ram-usage-extraction} and \cref{fig:cpu-usage-extraction} shows respectively the RAM and CPU usage of the server during the process of data extraction. Data was obtained using the command~{\tt top -bn1 | awk '/Cpu/ \{ print \$2 \}' }~for the CPU and~{\tt free -m | awk '/Mem/\{print \$3\}' }~for the RAM.
+\cref{fig:ram-usage-extraction} and \cref{fig:cpu-usage-extraction} shows respectively the RAM and CPU usage of the server during the process of data extraction. Data was obtained using the command~{\tt top -bn1 | awk '/Cpu/ \{ print \$2 \}' }~for the CPU and~{\tt free -m | awk '/Mem/\{print \$3\}' }~for the memory.
   
 
 \begin{table}[H]
@@ -202,13 +202,13 @@ eth2dgraph extract \
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{Figures/results/ram-usage-extraction.png}
-    \caption{RAM used by the server during data extraction}
+    \caption{Memory used by the server during data extraction}
     \label{fig:ram-usage-extraction}
 \end{figure}
 
 \subsection{Import in Dgraph}
 
-Data was imported in Dgraph using the Bulk Loader. I faced a problem during the import of the complete dataset, the loader kept crashing. Analyzing the logs, it seemed that the crash was due to a hard limit on the size of local buffers. Removing this hard-coded limit allowed me to complete the import of data. I also submitted this fix\footnote{Pull Request can be seen here: \url{https://github.com/dgraph-io/dgraph/pull/8841}} in the open source codebase of Dgraph, it was accepted and merged in the main branch.
+Data was imported in Dgraph using the Bulk Loader. I faced a problem during the import of the complete dataset, the loader kept crashing. Analyzing the logs, it seemed that the crash was due to a hard limit on the size of local buffers. Removing this hard-coded limit allowed me to complete the import of data. I also submitted this fix\footnote{Pull Request can be seen here: \url{https://github.com/dgraph-io/dgraph/pull/8841}} in the open-source codebase of Dgraph. It was accepted, merged in the main branch and later included in the 23.0.1 release.
 
 To perform the bulk import, I first ran with \cref{lst:zero-command} an instance of {\tt zero}, the Dgraph's node responsible of coordinating the distributed cluster. With the {\tt zero} running, the bulk import process was started with command reported in \cref{lst:bulk-command}.
 
@@ -349,7 +349,7 @@ In this section, I provide examples of queries with their corresponding executio
 {
     var(func: type(Transaction)) {
         countVar as count(uid)
- 	}
+    }
     agg() {
         count: max(val(countVar))
     }
@@ -407,7 +407,7 @@ In this section, I provide examples of queries with their corresponding executio
 \section{Comparison with Ethereum-ETL}
 
 Eth2dgraph was compared against Ethereum-ETL, one of the most popular open source tool to export Ethereum data. The two tools serve the same purpose: extract and transform Ethereum data to be more usable.
-Ethereum-ETL does so exporting data to CSV files, that can eventually be loaded into relational databases, while eth2dgraph does it exporting data to compressed JSON files that can be imported into Dgraph. 
+Ethereum-ETL does so exporting data to CSV files, that can eventually be loaded into relational databases, while eth2dgraph does so exporting data to compressed JSON files that can be imported into Dgraph. 
 
 At high level, the two tools work in a similar way. They both fetch data using the Ethereum RPC interface. They both can be used trough a CLI.
 

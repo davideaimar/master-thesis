@@ -1,23 +1,14 @@
 
-
-\chapter*{A - Github repository}
-\addcontentsline{toc}{chapter}{\protect\numberline{}A - Github repository} 
-
-The repository containing the code of eth2dgraph is available online along with an explanation of how to run the tool.
-
-\subsection*{Github repository link}
-\begin{itemize}
-    \item \url{https://github.com/davideaimar/eth2dgraph}
-\end{itemize}
-
-\chapter*{B - Complete schema of indexed data}
+\chapter*{A - Complete schema of indexed data}
 {\label[appendix]{app-b}}
 \addcontentsline{toc}{chapter}{\protect\numberline{}B - Complete schema of indexed data} 
 
-Here are both the DQL and GraphQL specifications of the schema of the data extracted. 
+Here are both the DQL and GraphQL schema of the data extracted.
+\cref{lst:dql-schema} reports the DQL schema and \cref{lst:graphql-schema} the GraphQL one.
 
 \begin{lstlisting}[
-caption={DQL schema of indexed data}
+caption={DQL schema of indexed data},
+label={lst:dql-schema}
 ]
 <Account.address>: string @index(hash) @upsert .
 <Account.tags>: [string] @index(hash) .
@@ -234,7 +225,8 @@ type <Withdrawal> {
 \end{lstlisting}
 
 \begin{lstlisting}[
-caption={GraphQL schema of indexed data}
+caption={GraphQL schema of indexed data},
+label={lst:graphql-schema}
 ]
 type Account {
   address: String! @id @search(by: [hash])
@@ -388,16 +380,15 @@ type Log {
 }
 \end{lstlisting}
 
-\chapter*{C - Data returned from RPCs}
-\addcontentsline{toc}{chapter}{\protect\numberline{}C - Data returned from RPCs} 
+\chapter*{B - Data returned from Ethereum RPCs}
+\addcontentsline{toc}{chapter}{\protect\numberline{}B - Data returned from RPCs} 
 
-To give more context here are included three examples of data returned from the RPCs that were used for extracting Ethereum data 
-
+To give more context, \cref{lst:block-data-rpc,lst:log-data-rpc,lst:trace-data-rpc} include three examples of data returned from the RPCs that were used for extracting Ethereum data.
 
 \subsection*{eth\_getBlockByNumber}
 
 \begin{lstlisting}[
-caption={Data returned from eth\_getBlockByNumber RPC with hydrated transactions},
+caption={Data returned from eth\_getBlockByNumber RPC with hydrated transactions.},
 label={lst:block-data-rpc}
 ]
 {
@@ -467,7 +458,7 @@ label={lst:block-data-rpc}
 \subsection*{eth\_getLogs}
 
 \begin{lstlisting}[
-caption={Data returned from eth\_getLogs RPC},
+caption={Data returned from eth\_getLogs RPC.},
 label={lst:log-data-rpc}
 ]
 {
@@ -498,7 +489,7 @@ label={lst:log-data-rpc}
 \subsection*{trace\_block}
 
 \begin{lstlisting}[
-caption={Data returned from trace\_block RPC},
+caption={Data returned from trace\_block RPC.},
 label={lst:trace-data-rpc}
 ]
 {

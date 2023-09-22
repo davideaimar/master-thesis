@@ -9,7 +9,7 @@ All the results refer to data from block $0$ to block $17,265,420$ of the Ethere
 This analysis wants to give a general overview of the data extracted. There are some interesting numbers that help to understand the current state of the Ethereum chain. Here are some interesting points:
 
 \begin{itemize}
-    \item 60,016,663 smart contract deployments, of which 213,406 failed, were found with 59,429,189 unique addresses. 88\% of them (52,343,783) never emitted logs. 87\% of them (51,974,197) never received a single transaction. Just 5.78\% (3,435,332) of contracts' addresses both received at least a transaction and emitted at least one log. This shows that the majority of the deployed smart contracts are never used.
+    \item 60,016,663 smart contract deployments, of which 213,406 failed, were found with 59,429,189 unique addresses. 88\% of them (52,343,783) never emitted logs. 87\% of them (51,974,197) never received a single transaction. Just 5.78\% (3,435,332) of contracts' addresses both received at least a transaction and emitted at least one log. This shows that the majority of the deployed smart contracts are never actively used.
     
     \item There are 2.8M logs emitted. 10 smart contracts alone, reported in \cref{table:top-logs-emitters}, emitted the 24.25\% of all logs. Top 100 contracts emitted 38.83\% of the logs. Top 1,000 contracts emitted 57.53\% of the logs. 33,287 smart contracts (0.056\% of the total) emitted 90\% of the logs. Most of the activity on the chain is restricted to a relatively small group of smart contracts.
     
@@ -22,7 +22,7 @@ This analysis wants to give a general overview of the data extracted. There are 
     \item \cref{fig:deploy-history} shows the history of smart contracts deployments. The growth in deployments was exponential until the beginning of 2018. After an initial period in which there were more deployments done by users than by contracts, now the majority of smart contracts are deployed using the CREATE or CREATE2 opcodes. This confirms the trend observed by Kiffer et al.~\cite{ethereum-sc-topology}. They observed this phenomena in data until 2018. The difference in deployments by users or by contracts has grown since then. Since 2019, the difference is of at least one order of magnitude.
 \end{itemize}
 
-\begin{table}[H]
+\begin{table}[!ht]
 \centering
     \begin{threeparttable}
     \begin{tabular}{ c c c } 
@@ -46,9 +46,9 @@ This analysis wants to give a general overview of the data extracted. There are 
     \label{table:top-logs-emitters}
 \end{table}
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
-    \includegraphics[width=0.9\textwidth]{Figures/analysis/deploys_per_month.png}
+    \includegraphics[width=1\textwidth]{Figures/analysis/deploys_per_month.png}
     \caption{Smart contract deployments over time grouped by month.}
     \label{fig:deploy-history}
 \end{figure}
@@ -58,7 +58,7 @@ This analysis wants to give a general overview of the data extracted. There are 
 
 \section{Skeleton clusters}
 
-The skeleton of a smart contract is its deployed bytecode without the arguments of the PUSH opcodes and the eventual metadata appended at the end. \cref{skeleton-section} describes this concept in details and explains how eth2dgraph extracts the skeletons from the Ethereum chain.
+The skeleton of a smart contract is its deployed bytecode without the arguments of the PUSH opcodes and the eventual metadata appended at the end. \cref{skeleton-section} describes this concept and explains how eth2dgraph extracts the skeletons from the Ethereum chain.
 
 Out of the 60M smart contracts deployments in the history of Ethereum, just 467K distinct skeletons were found. This allows to link smart contracts with each other based on skeleton equality. On average, each smart contract has 128 semantically identical siblings. 
 
@@ -78,7 +78,7 @@ I here analyze the top 10 skeletons found on the Ethereum chain by number of dep
 
     \item The fourth skeleton is simply the empty bytecode. It is valid in the Ethereum protocol to have empty smart contracts. 4,877,139 deployments with no bytecode were found.
 
-    \item The fifth skeleton is again related to gas tokens. It is the same logic of the previous two but with the length of allowed address of 20 bytes. 2,138,723 deployments matching this skeleton were found.
+    \item The fifth skeleton is again related to gas tokens. It is the same logic of the previous two but with the length of allowed address of 20 bytes. 2,138,723 deployments matching this skeleton were found with a size of 27 bytes.
 
     \item The sixth skeleton represents 1,665,668 user wallets of the \textit{Bittrex} exchange\footnote{Bittrex is a crypto exchange platform: \url{https://global.bittrex.com/}.}. Each of these smart contract is a controlled wallet. This means that each contract represents a user of the exchange, but the control over the Ethers and tokens remains under the company. The point of having these controlled wallets is to give users a unique address to send their tokens or Ethers. The size of this skeleton is of 502 bytes.
 
@@ -91,7 +91,7 @@ I here analyze the top 10 skeletons found on the Ethereum chain by number of dep
 
     \item The eighth skeleton has been used 1,542,310 times and represents a \textit{forwarder contract}. This skeleton has two main public functions: \textit{flush()} and \textit{flushTokens(address)}. They are used to transfer respectively ETH and tokens to a fixed parent address. The point of this kind of contract is to have multiple receive address for the same wallet. ETH transfers are automatically sent to the parent address, while tokens can be flushed with a transaction. Bitgo\footnote{Bitgo is a digital asset trust company: \url{https://www.bitgo.com/}} uses this contract in their implementation of the multisignature wallet\footnote{Source code of the multisignature wallet: \url{https://github.com/BitGo/eth-multisig-v2/tree/master}}. The size of this skeleton is of 785 bytes.
 
-    \item The nineth skeleton is a proxy used for the Ambi Multisig wallet as found by di Angelo and Salzer~\cite{wallet-contracts}. It has been deployed 1,202,291 times. 
+    \item The nineth skeleton is a proxy used for the Ambi Multisig wallet as found by di Angelo and Salzer~\cite{wallet-contracts}. It has been deployed 1,202,291, with a size of 88 bytes. 
 
     \item The tenth skeleton has been used 1,175,596 times and it is the exact same forwarding logic of the eight skeleton. The few small differences are probably due to compiler version or optimization level. Its size is of 789 bytes.
     
@@ -126,7 +126,7 @@ These 7 clusters describe 75.29\% of all the deployments that happened in the Et
 
 An interesting metric to observe is when the skeletons were first seen on the blockchain. This is a different indicator to the one shown in \cref{fig:deploy-history}, since it just shows when semantically new smart contracts are deployed, avoiding all the replicas.
 
-\cref{fig:skeletons-deploy} shows, for each month, the amount of new skeletons found on the Ethereum chain. While the number of monthly deployments has not increased since 2021, the number of new monthly skeletons has kept increasing. This is also visible in \cref{fig:skeletons-ratio}, especially in the year of 2022 in which the ratio between deployments and new skeleton was low compared to the past. From this data, it appears that code reuse is dropping. 
+\cref{fig:skeletons-deploy} shows, for each month, the amount of new skeletons found on the Ethereum chain. While the number of monthly deployments has not increased since 2021, the number of new monthly skeletons has kept increasing. This is also visible in \cref{fig:skeletons-ratio}, especially in the year of 2022 in which the ratio between deployments and new skeletons was low compared to the past. From this data, it appears that code reuse is dropping. 
 
 \begin{figure}[H]
     \centering
@@ -138,7 +138,7 @@ An interesting metric to observe is when the skeletons were first seen on the bl
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{Figures/analysis/ratio_per_month.png}
-    \caption{Ratio of deployments to new skeletons over time, grouped by month. High values = more duplicates deployed.}
+    \caption{Ratio of deployments to new skeletons over time, grouped by month. High values imply more duplicates deployed.}
     \label{fig:skeletons-ratio}
 \end{figure}
 
@@ -153,7 +153,7 @@ With the {\tt CREATE} opcode, the new address is calculated as
 
 \[a=keccak256(RLP(d,n_d))[12:] \]
 
-in which $d$ denotes the \textit{deployer} address and $n_d$ the deployer \textit{nonce}. The nonce is updated by the protocol to avoid collision of contract addresses, this prevents the possibility to deploy twice at the same address.
+in which $d$ denotes the \textit{deployer} address and $n_d$ the deployer \textit{nonce}. The nonce is updated by the protocol after every deployment. This prevents the possibility of deploying twice at the same address.
 
 With {\tt CREATE2}, the newly created address is computed as
 
@@ -163,14 +163,14 @@ where {\tt 0xff} is a constant byte, $s$ is a salt picked by the deployer and c 
 
 With {\tt CREATE2} it is possible to deploy a smart contract to a certain address $a$, then destruct it and re-deploy it again with the same bytecode at the same address $a$. This event is called \textit{resurrection} by Fröwis and Böhme~\cite{create2-metamorphic}. 
 
-Since the initialisation code of a contract can read the blockchain state, it is possible to use it in a way such that the same initialisation code ran multiple times results in different deployed bytecodes. An easy way of doing so is instructing it to ask a third smart contract the code to deploy. This third contract can change the code it gives back from time to time. This is one way of deploying different bytecodes at the same address, creating a \textit{metamorphic} smart contract. \cref{lst:meta-1,lst:meta-2} give an example of this pattern with pseudo code.
+Since the initialisation code of a contract can read the blockchain state, it is possible to use it in a way such that the same initialisation code, ran multiple times, results in different deployed bytecodes. An easy way of doing so is by instructing it to ask a third smart contract the code to deploy. This third contract can change the code it gives back from time to time. This is one way of deploying different bytecodes at the same address, creating a \textit{metamorphic} smart contract. \cref{lst:meta-1,lst:meta-2} give an example of this pattern with pseudo code.
 
-\begin{lstlisting}[label={lst:meta-1},caption={Pseudo initialization code that deploys bytecode read from another contract.}]
+\begin{lstlisting}[label={lst:meta-1},caption={Pseudo initialization code that gets the code to deploy from another contract.}]
 third_contract = address("0xab12...5134")
 return third_contract.get_code()
 \end{lstlisting}
 
-\begin{lstlisting}[label={lst:meta-2},caption={Pseudo code of a contract that gives the code to deploy.}]
+\begin{lstlisting}[label={lst:meta-2},caption={Pseudo code of a contract that gives back the code to be deployed.}]
 bytes code_to_deploy;
 
 function setCode(bytes calldata _data) public {
@@ -184,11 +184,11 @@ function getCode() public returns (bytes memory) {
 Another more complicated way to replace the deployed code of a contract is by combining {\tt CREATE} and {\tt CREATE2} together. {\tt CREATE2} is used to reset the nonce used in {\tt CREATE}. This can be done with the following steps:
 
 \begin{enumerate}
-    \item A deployer contract $D$ creates a \textit{factory} contract called $F$ at address $A_{f}$ using {\tt CREATE2}. $A_{f}$ is computed as $keccak256({\tt 0xff}\,||\,A_D\,||\,s\,||\,keccak256(c))[12:]$, in which $s$ is any random salt and $c$ is the initialization code of $F$.  
+    \item A deployer contract $D$ creates a \textit{factory} contract, here called $F$, at address $A_{f}$ using {\tt CREATE2}. $A_{f}$ is computed as $keccak256({\tt 0xff}\,||\,A_D\,||\,s\,||\,keccak256(c))[12:]$, in which $s$ is any random salt and $c$ is the initialization code of $F$.  
 
     \item Through $F$, a new contract $C_1$ is created using the {\tt CREATE} opcode at address $A_{c1}$. $A_{c1}$ will be calculated as $keccak256(RLP(A_f,n_d))[12:]$, in which $n_d$, the nonce, is zero.
 
-    \item The factory $F$ is destroyed with {\tt SELFDESTRUCT} and redeployed again by $D$ at the same address $A_f$ and with the same code. This is done using {\tt CREATE2} with the same parameters. This step is needed to reset the nonce of $F$.
+    \item The factory $F$ is destroyed with {\tt SELFDESTRUCT} and redeployed again by $D$ at the same address $A_f$ and with the same code. This is achieved using {\tt CREATE2} with the same parameters. This step is needed to reset the nonce of $F$.
 
     \item The contract $C_1$ is destroyed with {\tt SELFDESTRUCT}.
 
@@ -229,9 +229,9 @@ A total of 267,461 accounts received multiple deployments of the \textbf{same} b
 
 To cause these outliers were just two addresses\footnote{{\tt 0x3c3e8ab1e3327f24c917cd28789c9464adcf8198} and \\{\tt 0x6b25909c6141daf60ddf7c0700cedce07a9493d7} with respectively 596 and 256 metamorphic deployments.} that performed 852 deployments to metamorphic smart contracts in just three days. One of the address is used for MEV\footnote{MEV refers to multiple practices to maximize the extractable value from block. It includes frontrunning, arbitrage and liquidations.} activity, while the other deployed metamorphic contracts that were all used to mint the XEN\footnote{XEN is an ERC-20 token available at \url{https://etherscan.io/token/0x06450dEe7FD2Fb8E39061434BAbCFC05599a6Fb8}} token.
 
-\cref{fig:meta-deploys-all} reports the cumulative sum of deployments to the 524 metamorphic smart contracts. In general the usage of the metamorphic pattern has increased in the last period, especially since the end of 2022.
+\cref{fig:meta-deploys-all} reports the cumulative sum of deployments to the 524 metamorphic smart contracts. In general, the usage of the metamorphic pattern has increased in the last period, especially since 2022.
 
-As found by Fröwis and Böhme, many metamorphic contracts use \textit{vanity addresses}. These addresses have the peculiarity of having at least 7 leading zeros, meaning that they are smaller than the typical 20 bytes addresses. They are used to save on gas fees since it is less data to save on the blockchain storage. Out of the 524 metamorphic smart contracts found, 74 have a vanity address.
+As found by Fröwis and Böhme, many metamorphic contracts use \textit{vanity addresses}. These addresses have the peculiarity of having at least 7 leading zeros, meaning that they are smaller than the typical 20 bytes addresses. They are used to save on gas fees since it is less data that has to be stored on the blockchain. Out of the 524 metamorphic smart contracts found, 74 have a vanity address.
 
 Understanding the purpose of metamorphic smart contracts is not easy. All the deployments do not have verified source code. Most of them have low level bytecode with no decompiled functions (1660 out of 1781 deployments). 
 
@@ -288,15 +288,15 @@ The following information explains how this pattern worked before EIP-3529. Thes
     \item When a contract is destroyed, a refund of $24000$ gas is provided to the destroyer, after paying $700$ + $5000$ gas for calling {\tt CALL} + {\tt SELFDESTRUCT}. 
 \end{itemize}
 
-So the idea is that users deploy fuzzy contracts when gas is cheap and destroy them when gas is expensive. Gas from the refunds can cover up to 50\% of the gas used by the calling transaction that triggered the destructions, this is a cap introduced by the Ethereum protocol. 
+So the idea is that users deploy fuzzy contracts when gas is cheap and destroy them when gas is expensive. Gas from the refunds can cover up to 50\% of the gas used by the calling transaction that triggered the destructions, this is a limit introduced by the Ethereum protocol. 
 
-To make this concept accessible, there are a few smart contracts that abstract the logic into simple tokens. For each token minted, there is an underlying smart contract deployment. This token can easily be transferred between users. When the token is freed, the underlying smart contract is destroyed and the destroyer gets a discount on the gas of the transaction. The two most used tokens are CHI\footnote{Chi Gastoken on Etherscan: \url{https://etherscan.io/token/0x0000000000004946c0e9F43F4Dee607b0eF1fA1c}} and GST2\footnote{GST2 token on Etherscan: \url{https://etherscan.io/token/0x0000000000b3F879cb30FE243b4Dfee438691c04}}.
+To make this concept accessible, there are a few smart contracts that abstract the logic into simple tokens. For each token minted, there are many underlying smart contracts deployed. This token can easily be transferred between users. When the token is freed, the underlying smart contracts are destroyed and the owner of the token gets a discount on the gas of the transaction. The two most used tokens are CHI\footnote{Chi Gastoken on Etherscan: \url{https://etherscan.io/token/0x0000000000004946c0e9F43F4Dee607b0eF1fA1c}} and GST2\footnote{GST2 token on Etherscan: \url{https://etherscan.io/token/0x0000000000b3F879cb30FE243b4Dfee438691c04}}.
 
 To be profitable, the price of the gas when tokens are bought must be at least half of the price of the gas when they are sold. 
 
 Gas price has been historically very volatile, so the existence of this pattern makes sense. \cref{fig:gas-price} shows the historical fluctuation of gas price.
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=0.9\textwidth]{Figures/analysis/gas-price.png}
     \caption{Average daily Ethereum gas price over time.}
@@ -305,7 +305,7 @@ Gas price has been historically very volatile, so the existence of this pattern 
 
 \subsection{Identification of gas reserves}
 
-I identified all the smart contract ever deployed that were used as gas reserves. The logic of a gas reserve contract is basic. It simply allows one hard-coded address to destruct itself. \cref{lst:gas-token-code} shows the code that implements this logic, it is translated to the EVM bytecode reported in \cref{lst:gas-token-bytecode}
+I identified all the smart contracts ever deployed that were used as gas reserves. The logic of a gas reserve contract is basic. It simply allows one hard-coded address to destruct the contract. \cref{lst:gas-token-code} shows the code that implements this logic, it is translated to the EVM bytecode reported in \cref{lst:gas-token-bytecode}
 
 \begin{lstlisting}[caption={Pseudo code of the gas reserves.},label={lst:gas-token-code},captionpos=b,numbers=none]
 if (msg.sender == GAS_TOKEN_ADDRESS) {
@@ -348,9 +348,9 @@ I identified all the gas reserves using the skeletons. There are five distinct s
     \label{table:gas-reserve-deployments}
 \end{table}
 
-A total of 21,741,830 gas reserve deployments were found, more than one third of all the deployments of Ethereum. 90.1\% of them have been destroyed, the remaining contracts are still alive. Users should pay gas to destroy them but without a reward is very unlikely that this will ever happen. There are 2,158,422 contracts that can potentially be stuck there forever since there is no incentive in removing them from the blockchain. The timeline of deployments and destructions is shown in \cref{fig:gastokens-timeline}. It is clearly visible how the London upgrade successfully killed this pattern.
+A total of 21,741,830 successful gas reserve deployments were found, more than one third of all the deployments of Ethereum. 90.1\% of them have been destroyed, the remaining contracts are still alive. Users should pay gas to destroy them but without a reward is very unlikely that this will ever happen. There are 2,158,422 contracts that can potentially be stuck there forever since there is no incentive in removing them from the blockchain. The timeline of deployments and destructions is shown in \cref{fig:gastokens-timeline}. It is clearly visible how the London upgrade successfully killed this pattern.
 
-\begin{figure}[H]
+\begin{figure}[!ht]
     \centering
     \includegraphics[width=0.9\textwidth]{Figures/analysis/gastokens-timeline.png}
     \caption{Deployments and destructions of gas reserves over time.}
@@ -359,7 +359,7 @@ A total of 21,741,830 gas reserve deployments were found, more than one third of
 
 \subsection{Quantification of eth saved}
 
-I estimated an upper bound of how many Eth were saved using the GasToken pattern. The calculation is performed on each gas reserve as:
+I estimated the amount of Eth saved using the GasToken pattern. The calculation is performed on each gas reserve as:
 
 \[eth_{saved}=eth_{refund}-eth_{mint}\]
 
@@ -376,15 +376,15 @@ These are the limitations and assumptions made for this calculation:
 
     \item The gas spent for the small logic introduced by the token contracts that manage most of the gas reserves is not considered.
     
-    \item Gas spent for the transaction that deployed the contracts is not considered. It highly depends on how many deployments were done in a single transaction. For example, doing 100 deployments in a single transaction (equivalent to minting 1 GST2 token) makes the gas of the transaction count for just 0.58\% of the deployment cost. To get the upper limit I assume that all deployments were done in batches greater than 100 and so the transaction cost is negligible.
+    \item Gas spent for the transactions that deployed the reserves is not considered. It highly depends on how many deployments were done in a single transaction. For example, doing 100 deployments in a single transaction (equivalent to minting 1 GST2 token) makes the gas of the transaction count for just 0.58\% of the deployment cost. I assume that all deployments were done in batches greater than 100 and so the transaction cost is negligible.
 
     \item I assumed that all the destructions were done in such a way to not cover more than 50\% of the transaction gas with the refunds. Not doing so would mean wasting the refunded gas. 
 
-    \item The gas prices used are the ones related to the blocks, obtained as the averages of the prices of gas in the transactions.
+    \item The gas prices used are the ones related to the blocks, obtained as the averages of the prices of gas in all the transactions. It is possible that many reserves were deployed by the miner themselves without paying for the gas.
     
 \end{itemize}
 
-The obtained value estimated a total saving of around 14K Eth.
+The obtained value estimated a total saving of around 14K Eth, corresponding to 22,930,740 USD. The code used for this estimation is reported in \cref{lst:gas-calc}.
 
 \begin{lstlisting}[language=Python,label={lst:gas-calc},caption={Code for computing the total Eth saved with the GasToken pattern.},captionpos=b]
 # df contains all the gas reserves deployments 
@@ -405,14 +405,11 @@ saved = df['profit'].sum()
 
 \newpage
 
-
-\newpage
-
 \section{Most deployed functions and events}
 
-Understanding what are the most commonly used functions and events can give a hint on what most of the smart contracts are doing.
+Understanding what are the most commonly used functions and events gives a hint on what most of the smart contracts are doing.
 
-I present in~\cref{table:top-functions,table:top-events} the most frequently deployed functions and events extracted using the Heimdall EVM decompiler. As explained in \cref{decompilation-section,cachine-section} the decompilation is performed on the deployed bytecode of the smart contract, with a caching logic based on EVM skeletons. This means that two contracts sharing the same EVM skeleton received just one decompilation and the linked functions and events are the same. The numbers of this analysis directly depend on the accuracy of the decompiler.
+I present in~\cref{table:top-functions,table:top-events} the most frequently deployed functions and events extracted using the Heimdall EVM decompiler. As explained in \cref{decompilation-section,cachine-section} the decompilation is performed on the deployed bytecode of the smart contracts, with a caching logic based on EVM skeletons. This means that two contracts sharing the same EVM skeleton received just one decompilation and the linked functions and events are the same. The numbers of this analysis depend directly on the accuracy of the decompiler.
 
 \begin{table}[H]
 \centering
@@ -487,10 +484,10 @@ All the functions are related to proxy, wallet or token contracts. For the event
 
 \section{Contracts metadata}
 
-Smart contracts deployed using the Solidity compiler has the default option to include CBOR-encoded data at the end of the deployed bytecode. This piece of information includes:
+Smart contracts deployed using the Solidity compiler have the default option to include CBOR-encoded data at the end of the deployed bytecode. This piece of information includes:
 
 \begin{itemize}
-    \item Hash of the contract metadata. The metadata includes any kind of information related to the smart contract, such as the ABI, the documentation, the settings of the compiler, etc.. It also includes the hash of the source code, so a change in the source code causes a change in the metadata that consequently changes its hash. This hash can be used as an address to which store and retrieve the actual metadata and source code of the contract on a decentralized file system.
+    \item The hash of the contract metadata. The metadata includes any kind of information related to the smart contract, such as the ABI, the documentation, the settings of the compiler, etc.. It also includes the hash of the source code, so a change in the source code causes a change in the metadata that consequently changes its hash. This hash can be used as an address to which store and retrieve the actual metadata and source code of the contract on a decentralized file system.
     \item The type of the hash ({\tt bzzr0}, {\tt bzzr1} or {\tt IPFS}).
     \item A flag stating if the compilation was done with experimental features of the compiler enabled.
     \item The version of the Solidity compiler used.
@@ -502,7 +499,7 @@ All of this data has been extracted by eth2dgraph with a regex as explained in \
 
 A total 17,491,909 deployments included the hash of the metadata in the bytecode stored on the blockchain. Out of these, 1,164,973 (6.66\%) used {\tt IPFS}, 15,636,747 (89.39\%) used {\tt bzzr0} and 690,189 (3.94\%) used {\tt bzzr1}. 
 
-Analyzing the values of the hashes, there were just 770,719 distinct hashes found. This means that, on average, each smart contract compiled with the Solidity compiler gets deployed 22.7 times, another indicator of the high code reuse in the Ethereum blockchain. There are five occurrences in which the same metadata hash has been deployed more than 1M times, all of these deployments were done by just a few distinct addresses. On the other hand, there are 690,157 times in which the hash was only used once.
+Analyzing the values of the hashes, there were just 770,719 distinct hashes found. This means that, on average, each smart contract compiled with the Solidity compiler gets deployed 22.7 times, another indicator of the high code reuse in the Ethereum blockchain. There are five occurrences in which the same metadata hash has been deployed more than 1M times, all of these deployments were done by just a few distinct addresses. On the other hand, there are 690,157 occurrences in which the hash was only used once.
 
 \subsection{Experimental compilations}
 
@@ -540,7 +537,7 @@ The latest version, 0.8, managed to overtake the 0.5 after around one year from 
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.95\textwidth]{Figures/analysis/deploys_per_day_per_major.jpg}
-    \caption{Deployments over time divided by major Solidity compiler version. Each data entry represents the daily amount of deployments found per version. Keep in mind the log scale.}
+    \caption{Deployments over time divided by major Solidity compiler versions. Each data entry represents the daily amount of deployments found per version. Keep in mind the log scale.}
     \label{fig:deploys-per-solidity-version}
 \end{figure}
 

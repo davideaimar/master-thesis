@@ -1,9 +1,9 @@
 
 \section{Motivation}
 
-Since the publication of the Bitcoin~\cite{bitcoin} whitepaper by the pseudonym {\tt Satoshi Nakamoto} in 2008, the concept of blockchain has gained more and more popularity. The technology has evolved and has became more sophisticated, allowing for more complex use cases than just preventing double spending in money transfers. This was allowed by the use of Smart Contracts, immutable\footnote{The theoretical immutability of smart contracts is analyzed more in depth in chapter 6.} and deterministic pieces of code that rule the outcome of transactions based on the logic written in the code.
+Since the publication of the Bitcoin~\cite{bitcoin} whitepaper by the pseudonym {\tt Satoshi Nakamoto} in 2008, the concept of blockchain has gained more and more popularity. The technology has evolved and has become more sophisticated, allowing for more complex use cases than just preventing double spending in money transfers. This was allowed by the use of Smart Contracts, immutable\footnote{The theoretical immutability of smart contracts is analyzed more in depth in chapter 6.} and deterministic pieces of code that rule the outcome of transactions based on the logic written in the code.
 
-They were first implemented in 2015 by the Ethereum blockchain~\cite{Ethereum}, the first of many "Blockchain 2.0" that allowed developers to build decentralized applications based on Smart Contracts. 
+They were first implemented in 2015 by the Ethereum blockchain~\cite{Ethereum}, the first of many \textit{Blockchain 2.0} that allowed developers to build decentralized applications based on Smart Contracts. 
 
 Ethereum is a permissionless blockchain, it can be seen as a digital public ledger. It can be modified just through append operations and is historically immutable. One of the main strengths of this kind of blockchain is the fact that the public ledger is transparent, so everyone can independently download and access it without permissions.
 
@@ -14,7 +14,7 @@ Unfortunately, as noted also in other works \cite{dataether,xblock-eth,ethereum_
 It is possible to query the Ethereum nodes by just a few parameters, such as transaction hashes, block numbers and indexed log topics. 
 Without an external index, it is impossible to search data based on any other attribute.
 
-My work aims to ease the access to on-chain data and describes a way to do it. 
+My work aims to ease the access to on-chain data and describes a way to do it using \textit{Dgraph}~\cite{dgraph}, an open-source distributed database.
 
 \section{Research questions}
 
@@ -31,18 +31,17 @@ This thesis provides multiple contributions to the topic of data mining from the
 
 \begin{itemize}
     \item A research on the main state-of-the-art tools, highlighting their pros and cons.
+    \item The definition of a schema for Ethereum data optimized for graph databases. This schema includes both raw data and the semantics that can be built from it.
     \item The release of \textbf{eth2dgraph}, an open-source software written in \textit{Rust} that efficiently extracts data from the Ethereum blockchain to be indexed and queried with \textit{Dgraph}, a distributed graph database. 
     \item An analysis of the Ethereum data, both in terms of infrastructure and time needed to perform extraction and indexing and in terms of what semantics can be extracted.
 \end{itemize}
-
-Along the way, I had the opportunity to contribute to the open-source community by fixing issues I encountered in the tools I used.
 
 \section{Outline}
 
 The next chapters of this thesis as structured as follows:
 
 \begin{itemize}
-    \item \hyperref[chapter-2]{\textbf{Chapter 2 - Background}}: in this chapter, the fundamentals of the blockchain technology are explained, with a particular focus on Ethereum. There is also a section that explains how Dgraph works. 
+    \item \hyperref[chapter-2]{\textbf{Chapter 2 - Background}}: this chapter introduces the technical details of how a blockchain works, with a focus on Ethereum. It also includes a section about Dgraph. 
     \item \hyperref[chapter-3]{\textbf{Chapter 3 - Previous work}}: in this chapter, each section describes a work done in the field of data extraction and/or indexing of blockchain data.
     \item \hyperref[chapter-4]{\textbf{Chapter 4 - Methods}}: here it is described in details how eth2dgraph works. It is shown how each piece of information has been extracted.
     \item \hyperref[chapter-5]{\textbf{Chapter 5 - Results}}: this chapter shows the outcome of running eth2dgraph using a local Ethereum node to extract and index all the history of the chain.  

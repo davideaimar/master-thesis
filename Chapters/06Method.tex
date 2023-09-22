@@ -65,11 +65,15 @@ Entities in yellow (\textit{Transaction}, \textit{TokenTransfer} and \textit{Log
 
     \item \textit{Transaction} and \textit{Log} are stored as they are retrieved from the Ethereum node. References to other entities are stored as edges for allowing graph traversal in queries. A \textit{Transaction} represents a transfer of value between two EOAs or an invocation of a Smart Contract from an EOA. A \textit{Log} is the result of an invocation of an Event in the code of a Smart Contract.
 
-    \item \textit{TokenTransfer} represents both an ERC20 or an ERC721 token transfer between two accounts. Value is stored as a string since Dgraph does not handle 256 bit integers.
+    \item \textit{TokenTransfer} represents both an ERC20 or an ERC721 token transfer between two accounts. The value is stored as a string since Dgraph does not handle 256 bit integers.
     
-    \item \textit{Block} contains all the information related to a single Ethereum block. It includes data related to the withdrawals of validators. This entity is connected to many others: \textit{ContractDeployment}, \textit{ContractDestruction}, \textit{Transaction}, \textit{TokenTransfer} and \textit{Log}. 
+    \item \textit{Block} contains all the information related to a single Ethereum block header. This entity is connected to many others: \textit{ContractDeployment}, \textit{ContractDestruction}, \textit{Transaction}, \textit{TokenTransfer} and \textit{Log}. 
     
     The indexed attribute \textit{datetime} is the only reference to time in the database, so it is possible to query it for specific dates and times and then get all the connected data from there. 
+
+    Here, it is added a summary about the gas prices of the transactions included.
+
+    \item \textit{Withdrawal} represents a withdrawal from a validator. Withdrawals are used to remove the locked funds and stop being a validator in the proof of stake.
 
     \item \textit{Account} represents an Externally Owned Account or a Contract Account. Its fundamental attribute is the \textit{Address} of the account. There is also a boolean field \textit{is\_contract} indicating whether the account is a contract or not. This entity is extremely useful for querying data, since with the standard Ethereum RPC interface it is not possible to query data based on account addresses. So, for example, it is impossible to get all the transactions from/to an address without having to download and filter all the transactions in the history of Ethereum.
 
@@ -85,7 +89,7 @@ Entities in yellow (\textit{Transaction}, \textit{TokenTransfer} and \textit{Log
 
 Data is extracted using the Ethereum \textit{Remote Procedure Call} (RPC) interface\footnote{Official specification of the Ethereum RPC interface: \url{https://ethereum.github.io/execution-apis/api-documentation/}}. Eth2dgraph extracts data block by block. It needs three API calls per block to get all the data: \texttt{eth\_getBlockByNumber}, \texttt{eth\_getLogs} and \texttt{trace\_block}. 
 
-To call these RPCs, I used the library \texttt{ethers-rs}\footnote{\url{https://docs.rs/ethers/latest/ethers/}}, which provides, among other functionalities, a full client implementation in Rust that wraps the standard Ethereun interface and provides easy methods to interact with it in an asynchronous runtime.
+To call these RPCs, I used the Rust library \texttt{ethers-rs}\footnote{\url{https://docs.rs/ethers/latest/ethers/}}, which provides, among other functionalities, a full client implementation that wraps the standard Ethereum RPC interface and provides easy methods to interact with it in an asynchronous runtime.
 
 At high level, data returned from these RPC endpoints is parsed into Rust structs and later serialized into JSON files using the \textit{serde}\footnote{Serde is a Rust framework for easily serializing and de-serializing data structures \url{https://github.com/serde-rs/serde}} crate. To implement this, all the Rust structs that must be serialized to Dgraph format implement a trait called \textit{SerializeDgraph}. In Rust, a trait defines a collection of methods. A struct that implements a trait is guaranteed to have that methods implemented. It is a concept similar to the Interfaces in object oriented programming (OOP) languages.
 
@@ -122,7 +126,7 @@ Looking at the data returned from the Erigon node and analyzing its source code\
 
 Logs are retrieved using the \texttt{eth\_getLogs} RPC. This remote procedure call accepts an object as parameter, it can be used as a filter to refine the call and get just the logs needed. It is possible to filter by topics, contract address and blocks range. 
 
-All the logs are already indexed in the Ethereum nodes by the fields on which it is possible to filter. It is the standard way to extract semantics from the chain. When specifics conditions happen inside a call to a smart contract, it can emit a log with up to four indexed 256 bits words that will be stored by all the Ethereum nodes. These logs can represent any kind of information, e.g.~token transfers, and token swaps.
+All the logs are already indexed in the Ethereum nodes by the fields on which it is possible to filter. It is the standard way to extract semantics from the chain. When specifics conditions happen inside a call to a smart contract, it can emit a log with up to four indexed 256 bits words that will be stored by all the Ethereum nodes. These logs can represent any kind of information, e.g.~token transfers, token swaps.
 
 Eth2dgraph is getting logs downloading them block by block. The RPC \textit{eth\_getLog} is called for each block with a filter on the blocks range, with matching \textit{fromBlock} and \textit{toBlock} parameters.
 
@@ -141,7 +145,7 @@ It is relatively easy to extract smart contracts deployed in the first way, it i
 
 This way of extracting contracts has two drawbacks: it requires two extra calls to RPCs for each deployment and it misses all the contracts deployed by other contracts. Contracts are more likely to be deployed by other contracts rather than by users~\cite{ethereum-sc-topology}, so it is clear that this way is not ideal.
 
-To extract all the contract deployments, it is necessary to inspect each individual interaction done on the blockchain, both between users and contract (via transactions) and between contracts and other contracts (via \textit{internal transactions}). 
+To extract all the contract deployments, it is necessary to inspect each individual interaction done on the blockchain, both between users and contracts (via transactions) and between contracts and other contracts (via \textit{internal transactions}). 
 
 Internal transactions (also known as \textit{traces}) are the result of a call to a smart contract, they describe each single operation performed in that call. They are not described in the Ethereum Yellow Paper~\cite{ethereum-yellow} and they do not need to be stored by the nodes. They are just a detailed description of a transaction execution. They can be calculated having the transaction data, the bytecode to be executed and the state of the blockchain at the time of the transaction execution. 
 
@@ -153,16 +157,16 @@ Eth2dgraph is using the \texttt{trace\_block} RPC to collect all the deployments
 
 An Ethereum transaction can be successfully executed even if some of its parts have failed. An error in one internal transaction implies that all its child traces have no effect on the blockchain. 
 
-\cref{fig:traces} gives an example of the structure of traces in the transaction {\tt 0x7b4968c606e...4d941d66977}\footnote{Full tx hash: 0x7b4968c606e100d05158456d66d620ff6e96f00d68e3b6a426b774d941d66977}. Supposing that {\tt call\_1} failed, all its child calls ({\tt call\_1\_0}, {\tt staticcall\_1\_1} and {\tt staticcall\_1\_2}) will not change the state of the blockchain, despite being included in the traces returned by {\tt trace\_block}. Contracts deployed or destructed in an internal transaction that is part of a failed branch will not be effectively deployed or destroyed. 
-
-\begin{figure}[H]
+\begin{figure}[!ht]
   \centering
   \includegraphics[width=1\textwidth]{Figures/methods/traces.png}
   \caption{Example of the structure of traces in a transaction.}
   \label{fig:traces}
 \end{figure}
 
-The only reference to the error is present in the single trace that failed, with an {\tt error} field. To understand if a deployment or the destruction successfully completed, it is necessary to propagate the error from the failed traces to all its children. Eth2dgraph does so with the algorithm reported in \cref{lst:error-propagation}. It first groups traces of a block based on transaction hash. Then, for each transaction, it gets its failed traces. Then it loops again on all the traces of the transaction to see if any of them is a child of a failed one. This is done by searching a failed trace that has a matching starting address, e.g. a trace with address {\tt 1, 0, 0} has a matching starting address of the trace {\tt 1, 0, 0, 2}.
+\cref{fig:traces} gives an example of the structure of traces in the transaction {\tt 0x7b4968c606e...4d941d66977}\footnote{Full tx hash: 0x7b4968c606e100d05158456d66d620ff6e96f00d68e3b6a426b774d941d66977}. Supposing that {\tt call\_1} failed, all its child calls ({\tt call\_1\_0}, {\tt staticcall\_1\_1} and {\tt staticcall\_1\_2}) will not change the state of the blockchain, despite being included in the traces returned by {\tt trace\_block}. Contracts deployed or destructed in an internal transaction that is part of a failed branch will not be effectively deployed or destroyed. 
+
+The only reference to the error is present in the single trace that failed, with an {\tt error} field. To understand if a deployment or a destruction successfully completed, it is necessary to propagate the error from the failed traces to all its children. Eth2dgraph does so with the algorithm reported in \cref{lst:error-propagation}. It first groups traces of a block based on transaction hash. Then, for each transaction, it gets its failed traces. Then it loops again on all the traces of the transaction to see if any of them is a child of a failed one. This is done by searching a failed trace that has a matching starting address, e.g. a trace with address {\tt 1, 0, 0} has a matching starting address of the trace {\tt 1, 0, 0, 2}.
 
 Contract deployments and destructions found in failed traces are stored in the output of eth2dgraph with a boolean field indicating it.
 
@@ -211,11 +215,11 @@ Eth2dgraph stores accounts every time they are used in the following cases:
     \item Receivers of validator withdrawals.
     \item Authors of blocks (miners).
     \item Receivers of SELFDESTRUCT reward.
-    \item Deployer of a smart contract.
+    \item Deployers of smart contracts.
     \item Senders or receivers of token transfers.
-    \item Addresses of contract deployment or destruction, marked as contracts.
-    \item Addresses of contract emitting logs, marked as contracts.
-    \item Addresses of a contract emitting a token transfer, marked as contract.
+    \item Addresses of contract deployments or destructions, marked as contracts.
+    \item Addresses of contracts emitting logs, marked as contracts.
+    \item Addresses of a contracts emitting a token transfer, marked as contract.
 \end{itemize}
 
 \section{Semantics extraction}
@@ -231,26 +235,26 @@ Eth2dgraph tries to put together pieces of information to allow for an easier an
 \label{decompilation-section}
 Smart contracts are described by an \textbf{Application Binary Interface} (ABI) that lists all the functions and events that are implemented. 
 
-Smart contracts can be seen as REST APIs. The application status is stored in the contract's private code, similar to a database.
-The public functions exposed by the contract are like the API endpoints that can be used by users to interact with the application. This is done via stateless transactions (in the blockchain) and via API calls (in the traditional REST API pattern). The ABI is the description of the exposed functions, similarly to the specification of an API. 
+Smart contracts can be seen as REST APIs. The application status is stored in the contract's state variables, similarly to a database.
+The public functions exposed by the contract are like the API endpoints that can be used by users to interact with the application. This is done via stateless transactions (in the blockchain) and via HTTP calls (in the traditional REST API pattern). The ABI is the description of the exposed functions and events of a smart contracts, similarly to the specification of an API. 
 
-It is clear that having the ABI of a smart contract gives many useful insights about what it does. It can also be used to decode transactions and logs. In the ABI, there are the types of functions and events arguments. These types can be used to decode the bytes present in the transactions and logs data. It is possible to understand if they represent addresses, numbers, strings, bytes, etc..
+It is clear that having the ABI of a smart contract gives many useful insights about what it does. It can also be used to decode transactions and logs. In the ABI, there are the types of functions and events arguments. These types can be used to decode the bytes present in the transactions and logs data. It is possible to understand if they represent addresses, numbers, strings, raw bytes, etc..
 
 To extract the ABI, eth2dgraph integrates heimdall-rs\footnote{EVM decompiler written in Rust, source code available at: \url{https://github.com/Jon-Becker/heimdall-rs}}, an open-source EVM decompiler. Heimdall-rs uses symbolic execution to create the control flow graph (CFG) of the EVM bytecode. This is done via a custom implementation of the EVM. From the CFG, and looking at the function dispatcher part of the code, it is possible to locate functions and extract their inputs and outputs parameter types.
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=1\textwidth]{Figures/methods/decompilation-architecture.jpg}
+  \caption[Heimdall-rs integration into eth2dgraph]{Heimdall-rs integration into eth2dgraph}
+  \label{fig:decompilation-architecture}
+\end{figure}
 
 It is possible to extract function names using a database of reverse hashes. Function selectors are stored in the bytecode as the first four bytes of the hash of the functions' signature. It is possible to read these four bytes and see if there are matching signature that were previously reverse hashed. Heimdall-rs does this using the public etherface\footnote{Etherface is a database of Ethereum functions and event signatures, with related hashes, available at: \url{https://www.etherface.io/}} database. 
 Unfortunately, it is not possible to extract parameters name from the bytecode stored on the blockchain. This piece of information is removed during the compilation of the code. 
 
 Heimdall-rs is integrated in eth2graph using separate processes. Each time there is the need of running the decompiler, eth2dgraph creates a new process. This is done for isolation. For the nature of how the decompiler works, it can run in infinite loops during the symbolic execution. To avoid that, eth2dgraph has a parameter to set the maximum time spent waiting for de-compilation. The default is  five seconds.
 
-The output or the heimdall-rs process is stored to text files. When decompilation is done, these files are de-serialized by eth2dgraph into Rust data structures. \cref{fig:decompilation-architecture} shows how decompilation in handled in eth2dgraph.
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=1\textwidth]{Figures/methods/decompilation-architecture.jpg}
-  \caption[Heimdall-rs integration into eth2dgraph]{Heimdall-rs integration into eth2dgraph}
-  \label{fig:decompilation-architecture}
-\end{figure}
+The output of the heimdall-rs process is stored to text files. When decompilation is done, these files are de-serialized by eth2dgraph into Rust data structures. \cref{fig:decompilation-architecture} shows how decompilation in handled in eth2dgraph.
 
 \subsection{Contracts skeleton and metadata}
 \label{skeleton-section}
@@ -289,7 +293,7 @@ event Transfer(address indexed _from, address indexed _to, uint256 indexed _toke
 
 Both events share the same name and types. The only difference is in the last parameter. It is indexed in case of ERC721 and not indexed in case of ERC20. The signature of the event is not influenced by this difference, so all the logs that are describing token transfers share the same signature.
 
-Logs with the first topic matching the keccak256 hash of the Transfer event signature are treated as token transfer by eth2dgraph.
+Logs with the first topic matching the keccak256 hash of the Transfer event signature are treated as token transfers by eth2dgraph.
 
 After finding a matching log, the bytes composing the data field are split into 256 bit words and merged to the 256 words of the indexed topics.
 
@@ -329,7 +333,7 @@ Here is a more detailed description of each task:
     
     It is possible to set the limit of parallel extractor tasks to run usign the \texttt{--num-jobs} option. This is implemented using a semaphore. Each time an extractor task is created, it acquires a permit from a semaphore with a fixed capacity. When the task ends, the permit is dropped and, as a consequence, a new permit is freed in the semaphore. In case the maximum number of tasks is reached, the generator waits until the semaphore has a free permit available. This was done to avoid overloading the system with millions of concurrent tasks.
 
-    \item The extractor task is the one responsible for the actual extraction. It receive as an argument the block to process and it collects all the data related to it. This includes handling the decompilation. All the steps related to data extraction were described in the previous sections.
+    \item The extractor task is the one responsible for the actual extraction. It receives as an argument the block to process and it collects all the data related to it. This includes handling the decompilation. All the steps related to data extraction were described in the previous sections.
 
     When data is ready to be stored, it is sent to the writer task using a bounded \textit{multiple-producer single-consumer} (mpsc) channel.
 
@@ -338,13 +342,13 @@ Here is a more detailed description of each task:
     \item The flusher task is responsible for storing and compressing the output of the extraction. It receives a vector of a generic type \texttt{T} that implements the trait \texttt{SerializeDgraph}. It compresses this vector using gzip with a compression level that can be set as an option. Finally, it stores it in an output file. Data is stored divided by type and with incremental file names.
 \end{itemize}
 
-All these tasks are ran on the multi-threaded Tokio runtime. They are managed by the Tokio scheduler that implements a \textit{non-preemptive}, also called \textit{cooperative}, scheduling strategy. This means that tasks are switched when they explicitly ask for it, giving back the control to the scheduler. 
+All these tasks are ran on the multi-threaded Tokio runtime. They are managed by the Tokio scheduler that implements a \textit{non-preemptive}, also called \textit{cooperative}, scheduling strategy. This means that tasks are switched when they explicitly ask for it, using \lstinline{.await}, giving back the control to the scheduler. 
 
-In this way it is possible to maximize the parallelism of the extraction process. For example, when a task is downloading block's data, it calls \texttt{await} on the library function responsible for networking. This call tells the Tokio scheduler that the task is paused and cannot continue, so it is replaced with another task that has work to do.
+In this way it is possible to maximize the parallelism of the extraction process. For example, when a task is downloading block's data, it calls \texttt{await} on the library function responsible for networking. This call tells the Tokio scheduler that the task is paused and cannot continue, so it is replaced with another task that has work to do. The task will be resumed when the network data is ready to be used.
 
 \subsection{Decompilation cache}
 \label{cachine-section}
-One of the biggest bottlenecks of the extraction process was the decompilation step. Spawning a dedicated process for handling decompilation of each contract deployment takes a lot of time. The main problem is that the decompiler, for how it is designed, can encounter infinite loops during the building of the control flow graph. To avoid that, it is ran with a timeout of a few seconds, but even with that, it was slowing down the process by a lot.
+One of the biggest bottlenecks of the extraction process was the decompilation step. Spawning a dedicated process for handling decompilation of all the 60M contracts takes a lot of time. The main problem is that the decompiler, for how it is designed, can encounter infinite loops during the building of the control flow graph. To avoid that, it is ran with a timeout of a few seconds, but even with that, it was slowing down the process by a lot.
 
 The solution implemented in eth2dgraph is caching the decompilation based on bytecode skeletons. Two contract deployments sharing the same EVM skeleton are decompiled only once. The decompiled ABI of a skeleton comes from the decompilation of the first contract found with that skeleton.
 
@@ -389,7 +393,7 @@ This way of extracting semantics has a direct implication on the schema of data.
 
 \section{Similarity calculation}
 \label{similarity-calculation}
-Smart contracts' deployments are clustered based on bytecode skeletons: many smart contracts share the same skeleton and thus they are linked to the same skeleton's entity in the database. To link these skeleton clusters together, some similarity metrics are needed. Linking skeleton clusters helps the process of data analysis; it ease the recognition of patterns and connections.
+Smart contracts' deployments are clustered based on bytecode skeletons: many smart contracts share the same skeleton and thus they are linked to the same skeleton entity in the database. To link these skeleton clusters together, some similarity metrics are needed. Linking skeleton clusters helps the process of data analysis; it ease the recognition of patterns and connections.
 
 Eth2dgraph implements two similarity metrics:
 
@@ -400,7 +404,7 @@ Eth2dgraph implements two similarity metrics:
     \end{equation}
     where $A$ and $B$ are the sets containing function and event names. It gives a number between $1$ (identical ABIs) and $0$ (non-overlapping ABIs).
     
-    \item \textit{Bytecode similarity}: The interface similarity logic works greatly if the smart contracts implement many public functions, but it doesn’t work very well if most of the code lies in internal functions and the exposed ones are just a few, like \texttt{start()} or \texttt{run()}. 
+    \item \textit{Bytecode similarity}: The interface similarity logic works greatly if the smart contracts implement many functions or events. It does not work very well if most of the code lies in internal functions and the exposed ones are just a few, like \texttt{start()} or \texttt{run()}. 
     To face this problem I added a second similarity metric that just considers the contracts' bytecodes. Inspired by Kiffer et al.~\cite{ethereum-sc-topology}, the metric used is the cosine similarity between hypervectors containing the frequencies of opcodes' 5-grams. It is computed as follows:
     \begin{enumerate}
         \item The two bytecodes to analyze are decoded to extract the opcodes, without their arguments.

@@ -1,2 +1,63 @@
 \label{chapter-7}
 
+As blockchain technology gains popularity, the challenge of managing data from these networks becomes increasingly critical. This Master's thesis proposed an alternative solution using a graph database. Thanks to the release of eth2dgraph, it is now possible to easily index Ethereum data using Dgraph and query it with GraphQL. 
+
+Dgraph proved to be a viable solution for managing blockchain data. This kind of data adapts well to graph databases. There are two main drawbacks that were encountered using this database:
+
+\begin{itemize}
+    \item EVM data is often represented using 256 bits integers or raw bytes. Dgraph does not support these data types. They must be stored as strings with all the related disadvantages.
+    \item When used with a large dataset, Dgraph encountered some limitations with the usage of memory. It crashed both during the bulk import and during the execution of large queries. These problems were solved by modifying the source code or tweaking the queries to use less memory. However, they show that Dgraph is still not well tested against large dataset.
+\end{itemize}
+
+Dgraph is a relatively new technology. It was born in 2016 and is currently under active development. The project maintainers showed interest in this use case and actively helped me to solve the problems I faced with the database.
+
+To answer research question 1, the schema used to manage data gives a clear image of what can be extracted from EVM chains without relying on centralized services. It is reported in \cref{fig:schema}. The only kind of information that can not be extracted without relying in centralized services is the source code of smart contracts. It is possible to extract functions and events implemented by smart contract from their bytecodes, even if data is not perfectly accurate.
+
+Generally, most of the semantics related to on-chain operations can be obtained from logs. In this work, logs referring to token transfers were parsed to allow faster and easier queries. The same can be done for any other domain, e.g. token swaps, token approvals or other protocol-specific use cases.
+
+The answer to the second research question is positive. Although the entry barrier is high, it is still possible to run an archive node, extract all the historical data and index it in a database all in the same machine. It is an operation that takes time. It takes at least a few days to sync a node, around seven hours to extract the data and more than two days to ingest it into the database. All this process requires at least 6TB of fast SSDs, 400GB of RAM and many CPUs. 
+
+It is important to highlight that these data refer to the Ethereum blockchain. Layer 2 protocols, such as Polygon, are already producing more data than Ethereum.
+
+Another relevant concern is that blockchains will grow indefinitely. The size of an instance of a Geth archive node is growing at around 3.5TB per year\footnote{This graph made by Etherscan shows the historical size of a Geth archive node: \url{https://etherscan.io/chartsync/chainarchive}.}. Soon, it will not be possible to handle all this data on a single machine, since vertical scalability is not infinite. A distributed approach will be the only viable way in the future.
+
+This expensive entry barrier makes it hard to perform such an operation. People interested in analyzing Ethereum data are more likely to use one of the few centralized services instead of running their infrastructure. 
+
+The lack of research and tools in this field could potentially create a gap between companies and the open-source community. This would reduce the decentralization of the blockchain ecosystem, making an important element such as data analysis dependant from private companies.
+
+\section{Future work}
+
+There are some areas that could be explored more in depth in future works. In theory, eth2dgraph should work with any EVM compatible chain, such as Polygon, since the RPCs used are the same. This has not been tested because of the lack of available nodes.
+
+Due to the infrastructure available, Dgraph was used in a single machine. It would be interesting to test its behaviour with a cluster distributed over multiple servers.
+
+Another area of improvement is the streaming of live data. Currently, eth2dgraph supports live data insertion from the Ethereum network to an active Dgraph cluster using transactions. It proved to work well when the database does not have a lot of data already indexed. Live insertion of data into a cluster with all the Ethereum history indexed resulted to be slower than production of data from the blockchain. This made it impossible to manage live data, since the insertion could not keep the pace of the chain.
+
+Talking more broadly, the optimal solution to this problem would be to have a client that directly gives the option to freely index data. This would remove the redundancy of having to store data in two different places: one in the EVM client storage and one in the database storage. These \textit{Blockchain Analytics Clients} could specifically target data analysts and would not need the ability to participate in the consensus layer of the protocol. 
+
+
+% Notes: 
+
+% what was done:
+%  - [x] introduced a new way of managing Ethereum data
+%  - [x] published an open source tool 
+%  - [] analyzed the blockchain status highlighting lot of useless smart contracts
+
+
+% problems:
+%  - [x] huge entry barrier, need of very powerful machines
+%  - [x] ethereum will grow indefinitely, data will be too much to handle
+%  - [x] dgraph reached its limits
+%  - [x] live stream of data couldn't keep up with the chain data
+%  - [x] layer 2 produces even more data
+
+% future work:
+%  - [x] test with a dgraph cluster spread on multiple servers
+%  - [x] test eth2dgraph with other evm chains
+%  - [x] improve live stream of data
+
+%  rq1: What kind of information is it possible to extract from EVM blockchains without relying on centralized services?
+%  -> apart from the raw data (block headers, transactions, logs) it is partially possible to extract smart contracts ABI from the bytecode. Thanks to standardized Smart contracts, it is possible to interpret some logs, such as token transfers, to their real meaning.
+
+%  rq2: Is it feasible to independently extract and index the entire history of the Ethereum blockchain on a single machine? 
+%  -> yes but very powerful machines are needed. Probably it will not be possible in the future. Right now dgraph needed --GB of RAM and 52 hourse of time to produce --TB of indexed data. This will just grow in the future.

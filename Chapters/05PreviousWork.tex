@@ -44,15 +44,7 @@ The underlying protocol is composed of multiple actors:
   \item Delegators: they secure the network by locking economical value to certain indexers they choose, giving them the possibility to serve more queries.
 \end{itemize}
 
-All these actors are economically motivated to perform well. This is achieved via a token economy where the GRT is the currency. It is implemented on the Ethereum chain with an ERC-20 smart contract\footnote{\url{https://etherscan.io/token/0xc944e90c64b2c07662a292be6244bdf05cda44a7}}.
-
-In order to index and serve queries, indexers have to stake at least 100,000 GRT tokens (roughly equal to 12K USD with the current change). These tokens can be slashed in case the indexer behaves maliciously. The more tokens the indexer stakes and the more queries it can serve. At the same time, indexers are rewarded with GRT tokens in two ways: query fees and annual rewards based on amount of queries served.
-
-According to the specification of the subgraph file\footnote{Specification available at: \url{https://github.com/graphprotocol/graph-node/blob/master/docs/subgraph-manifest.md\#15-data-source}}, the only allowed source of data are Ethereum contracts and mappings are restricted to Events. \Cref{fig:the-graph-data-flow} shows the flow of data in the protocol. In most cases, this is enough for dApps, since typically all the smart contracts are written in such a way that they emit meaningful events when things happen. 
-
-On the other hand, it is not possible to index all the other kind of information for performing other analysis, such as block data, contract deployments, transactions, contracts destruction, etc. It is also not possible to extract data that was not meant to be extracted, since the emitted events are pieces of information that the developers of the smart contracts explicitly wanted to expose and index. 
-
-\begin{figure}[H]
+\begin{figure}[!ht]
   \centering
   \includegraphics[width=1\textwidth]{Figures/graph-dataflow.png}
   \caption[The Graph data flow]{Data flow of The Graph indexing protocol\protect\footnotemark.}
@@ -60,6 +52,14 @@ On the other hand, it is not possible to index all the other kind of information
 \end{figure}
 
 \footnotetext{Source: \url{https://thegraph.com/docs/en/about/}}
+
+All these actors are economically motivated to perform well. This is achieved via a token economy where the GRT is the currency. It is implemented on the Ethereum chain with an ERC-20 smart contract\footnote{\url{https://etherscan.io/token/0xc944e90c64b2c07662a292be6244bdf05cda44a7}}.
+
+In order to index and serve queries, indexers have to stake at least 100,000 GRT tokens (roughly equal to 12K USD with the current change). These tokens can be slashed in case the indexer behaves maliciously. The more tokens the indexer stakes and the more queries it can serve. At the same time, indexers are rewarded with GRT tokens in two ways: query fees and annual rewards based on amount of queries served.
+
+According to the specification of the subgraph file\footnote{Specification available at: \url{https://github.com/graphprotocol/graph-node/blob/master/docs/subgraph-manifest.md\#15-data-source}}, the only allowed source of data are Ethereum contracts and mappings are restricted to logs. \Cref{fig:the-graph-data-flow} shows the flow of data in the protocol. In most cases, this is enough for dApps, since typically all the smart contracts are written in such a way that they emit meaningful events when things happen. 
+
+On the other hand, it is not possible to index all the other kind of information for performing other analysis, such as block data, contract deployments, transactions, contracts destruction, etc. It is also not possible to extract data that was not meant to be extracted, since the emitted events are pieces of information that the developers of the smart contracts explicitly wanted to expose and index. 
 
 As of today, the protocol continues to rely on a centrally hosted service that uses the subgraphs' logic and code to index data, but queries are served from this centralized server for free. This should change later in 2023, the network should slowly migrate from this centralized service to the decentralized protocol once the quality of the service will be comparable\footnote{This transition is explained in details here: \url{https://thegraph.academy/developers/sunsetting-the-hosted-service/}}.
 
@@ -89,7 +89,7 @@ Ethereum-ETL also provides the command {\tt export\_all} to perform extraction o
 
 \subsection{Google BigQuery public dataset}
 
-\noindent Ethereum-ETL also allows for streaming data from an Ethereum node to the console. This functionality is used to ingest data into the popular Ethereum Google BigQuery public dataset\footnote{\url{https://cloud.google.com/blog/products/data-analytics/ethereum-bigquery-public-dataset-smart-contract-analytics}}. This dataset is organized in six tables that I report here since it is a good representation of the raw data that can be extracted from an Ethereum node.
+\noindent Ethereum-ETL also allows for streaming data from an Ethereum node to the console. This functionality is used to ingest data into the popular Ethereum Google BigQuery public dataset\footnote{The Google's BigQuery dtaset can be explored here: \url{https://cloud.google.com/blog/products/data-analytics/ethereum-bigquery-public-dataset-smart-contract-analytics}}. This dataset is organized in six tables that I report here in \cref{table:bigquery-blocks,table:bigquery-contracts,table:bigquery-logs,table:bigquery-traces,table:bigquery-transactions,table:bigquery-transfers} since it is a good representation of the raw data that can be extracted from an Ethereum node.
 
 \begin{table}[H]
 \centering
@@ -271,11 +271,18 @@ Indexes avoid the need to read and filter data. They provide direct access to th
 Indexes provide very good query performances, but can be hard and slow to maintain when the amount of data grows.
 At Dune Analytics they tried this approach with traditional relational database (PostgreSQL) combined with many indexes, but they had to drop it stating that "the size of the datasets were so huge that the database was struggling to fully support them"\footnote{Source: \url{https://dune.com/blog/introducing-dune-sql}}. \\
 
-They came up with DuneSQL, a query engine built specifically for managing blockchain data. It is a fork of Trino, an open source distributed SQL query engine designed to query data from heterogeneous sources. The DuneSQL fork is not open source, so technical information can only be deducted from their blog articles or statements on the support community. The main features they added are \textit{varbinary} data type for storing addresses and hashes, as well as \textit{uint256} support for EVM data. \\
+They came up with DuneSQL, a query engine built specifically for managing blockchain data. It is a fork of Trino, an open source distributed SQL query engine designed to query data from heterogeneous sources. The DuneSQL fork is not open-source, so technical information can only be deducted from their blog articles or statements on the support community. The main features they added are \textit{varbinary} data type for storing addresses and hashes, as well as \textit{uint256} support for EVM data. \\
 
-Data is physically stored on AWS S3 buckets using the Apache Parquet storage format\footnote{Detailed description of Parquet storage format \url{https://github.com/apache/parquet-format}}. This storage system is a mix between column and row oriented. Data is split in files based on rows, inside these files, there are further row groups and inside these groups data is divided by columns. \cref{fig:parquet-structure} visualize this concept. \\
+Data is physically stored on AWS S3 buckets using the Apache Parquet storage format\footnote{Detailed description of Parquet storage format \url{https://github.com/apache/parquet-format}}. This storage system is a mix between column and row oriented. Data is split in files based on rows, inside these files, there are further row groups and inside these groups data is divided by columns. \cref{fig:parquet-structure} visualizes this concept. 
 
-\begin{figure}[H]
+\begin{lstlisting}[language=SQL,caption={Shortened simple query on DuneSQL that took 3 minutes to run},label={lst:dune-query},captionpos=b]
+Select * from ethereum.transactions
+where hash = 0x9ef65fe51...ff74219e
+\end{lstlisting}
+
+Indexing is done using the Parquet file's metadata. At the end of each file there is a part in which are stored min/max values of all the column values inside a row group, as shown in image \ref{fig:parquet-index}. This information allows the database to skip reading the whole file if values are not in the desired range. While working great for certain types of data, it is not very useful with strings, especially if they are not sorted. That is the reason why even very simple queries can take several minutes to run. \cref{lst:dune-query} serves as an example of such a query. 
+
+\begin{figure}[!ht]
   \centering
   \includegraphics[width=1\textwidth]{Figures/parquet-structure.png}
   \caption[Parquet storage format structure]{File structure in the Parquet storage format\protect\footnotemark.}
@@ -284,9 +291,7 @@ Data is physically stored on AWS S3 buckets using the Apache Parquet storage for
 
 \footnotetext{Source: \url{https://github.com/apache/parquet-format}}
 
-Indexing is done using the Parquet file's metadata. At the end of each file there is a part in which are stored min/max values of all the column values inside a page, as shown in image \ref{fig:parquet-index}. This information allows the database to skip reading the whole chunk if values are not in the desired range. While working great for certain types of data, it is not very useful with strings, especially if they are not sorted. That is the reason why even very simple queries can take several minutes to run. \cref{lst:dune-query} serves as an example of such a query. \\
-
-\begin{figure}[H]
+\begin{figure}[!ht]
   \centering
   \includegraphics[width=1\textwidth]{Figures/parquet-index.jpg}
   \caption[Parquet ColumnIndex on Dune Analytics]{Parquet min/max column index structure \protect\footnotemark. }
@@ -295,28 +300,24 @@ Indexing is done using the Parquet file's metadata. At the end of each file ther
 
 \footnotetext{Source: \url{https://dune.com/docs/query/storage/}}
 
-\begin{lstlisting}[language=SQL,caption={Shortened simple query on DuneSQL that took 3 minutes to run},label={lst:dune-query},captionpos=b]
-Select * from ethereum.transactions
-where hash = 0x9ef65fe51...ff74219e
-\end{lstlisting}
 
 \subsection{Available data}
 
 On Dune Analytics, blockchain data is available in multiple layers:
 
 \begin{itemize}
-    \item \textit{Raw tables}: these tables contain raw data as it is stored on the various blockchains, without modifications. For EVM chains this means Blocks, Logs, Traces and Transactions.
-    \item \textit{Decoded tables}: verified contracts receive their own tables on which data is stored in a more readable way. Each event and function that is present in the contract's ABI corresponds to a table on Dune with the following name pattern: \texttt{project\_chain.contract\_[evt/call]\_evtOrCallName}. Inside this table there will be columns for each of the event or function attributes, with the relative names. For example, all the \textit{cryptokitties} \texttt{Transfer} events are stored in a table called \texttt{cryptokitties\_ethereum.KittyCore\_evt\_Transfer} that will have, among other contextual information, three columns: \textit{from}/\textit{to} addresses and \textit{tokenId}.
+    \item \textit{Raw tables}: these tables contain raw data as it is stored on the various blockchains, without modifications. For EVM chains this means Blocks, Logs, Traces, Transactions and Withdrawals.
+    \item \textit{Decoded tables}: smart contracts with verified source code receive their own tables on which data is stored in a more readable way. Each event and function that is present in the contract's ABI corresponds to a table on Dune with the following name pattern: \texttt{project\_chain.contract\_[evt/call]\_evtOrCallName}. Inside this table there will be columns for each of the event or function attributes, with the relative names. For example, all the \textit{cryptokitties} \texttt{Transfer} events are stored in a table called \texttt{cryptokitties\_ethereum.KittyCore\_evt\_Transfer} that will have, among other contextual information, three columns: \textit{from}/\textit{to} addresses and \textit{tokenId}.
     \item \textit{Spellbooks}: these tables are abstractions over raw and decoded data that give users an easy way to retrieve information without diving into the technicalities of complex decentralized protocols. They are open source and the community can contribute creating new spellbooks on the Github Repository\footnote{All the spellbooks can be found on the Github repository: \url{https://github.com/duneanalytics/spellbook}}. The main power of spellbooks is to put together data from heterogeneous sources to gather useful insights. One of the clearest example is the \texttt{dex.trades}\footnote{Source code of the \texttt{dex.trades} spellbook: \url{https://github.com/duneanalytics/spellbook/blob/main/models/dex/dex\_trades.sql}} spellbook, that puts together all the trades made on all decentralized exchanges of all the blockchains present on Dune Analytics.
 \end{itemize}
 
 \section{XBlock-ETH}
 
-Zheng et al.~\cite{xblock-eth} released a dataset containing raw Ethereum data and described the framework used for getting it, called XBlock-ETH. It was released in 2019. Data is periodically updated in chunks of 500,000 blocks, it currently covers blocks from 0 to 16,499,999. It is divided in different smaller datasets: \textit{Block}, \textit{Block Transaction}, \textit{Internal Transaction}, \textit{Contract Info}, \textit{ERC20 Transaction}, \textit{ERC721 Transaction}, \textit{Token Info}. Data can be downloaded from their website\footnote{Xbloxk website where it\url{https://xblock.pro/xblock-eth.html}} in CSV format.
+Zheng et al.~\cite{xblock-eth} released a dataset containing raw Ethereum data and described the framework used for getting it, called XBlock-ETH. It was released in 2019. Data is periodically updated in chunks of 500,000 blocks, it currently covers blocks from 0 to 16,499,999. It is divided in different smaller datasets: \textit{Block}, \textit{Block Transaction}, \textit{Internal Transaction}, \textit{Contract Info}, \textit{ERC20 Transaction}, \textit{ERC721 Transaction}, \textit{Token Info}. Data can be downloaded from their website\footnote{Xbloxk website where it is possible to get the data: \url{https://xblock.pro/xblock-eth.html}} in CSV format.
 
 This is a useful resource for getting Ethereum data without having the possibility to run a node; however it lacks important information such as logs and receipts. 
 
-It is not easy to use, since the massive amount of data in the CSV files must be parsed and cannot be easily queried or indexed, further transformation steps are needed. There are some Python scripts available on Github\footnote{Repository of XBlock-ETH: \url{https://github.com/tczpl/XBlock-ETH}} for downloading and analysing the data, but the code used for the extraction is not open source, so it is not possible to know exactly how information was retrieved.
+It is not easy to use, since the massive amount of data in the CSV files must be parsed and cannot be easily queried or indexed, further transformation steps are needed. There are some Python scripts available on Github\footnote{Repository of XBlock-ETH: \url{https://github.com/tczpl/XBlock-ETH}} for downloading and analysing the data, but the code used for the extraction is not open-source, so it is not possible to replicate the extraction.
 
 \section{Data-ether}
 
@@ -366,4 +367,4 @@ Depending on centralized companies poses also a risk to the actual decentralizat
 \label{table:tools-comparison}
 \end{table}
 
-My work aims to provide an open-source alternative for accessing Ethereum data. The main target are data analysts. It is mostly inspired by Ethereum-ETL, but with particular focus on performance and semantics of smart contracts. Data is indexed using a particular graph database, Dgraph, that was not used in the other works.
+My work aims to provide an open-source alternative for accessing Ethereum data. The main target are data analysts, but thanks to the performance of the database used, it can also be used by web3 developers. It is mostly inspired by Ethereum-ETL, but with particular focus on performance and semantics of smart contracts. Data is indexed using a particular graph database, Dgraph, that was not used in the other works.
