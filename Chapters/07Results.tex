@@ -2,7 +2,8 @@
 
 \section{Infrastructure used}
 
-Eth2dgraph was developed and used on a server provided by the Decentralised Systems Engineering Lab of the NTNU University. The server's specifications are reported in \cref{table:server-specs}.
+Eth2dgraph was developed and used on a server provided by the Decentralised Systems Engineering Lab of NTNU University\footnote{Decentralised
+Systems Engineering Lab \url{https://www.ntnu.edu/idi/dse}}. The server's specifications are reported in \cref{table:server-specs}.
 
 \begin{table}[ht!]
 \centering
@@ -22,7 +23,7 @@ Eth2dgraph was developed and used on a server provided by the Decentralised Syst
 \label{table:server-specs}
 \end{table}
 
-On this same machine there was an archive Ethereum node that was used to get the data. The RPC calls did not have to go trough the network, all the process was done in a single machine. The client used was Erigon\footnote{Erigon is an Ethereum client written in Go \url{https://github.com/ledgerwatch/erigon}}. It was run with the command reported in \cref{lst:erigon-command} and the RPC daemon with the command reported in \cref{lst:rpc-command}.
+On the same machine, there was an archive Ethereum node that was used to get the data. The RPC calls did not have to go through the network, all the process was done in a single machine. The client used was Erigon\footnote{Erigon is an Ethereum client written in Go \url{https://github.com/ledgerwatch/erigon}}. It was run with the command reported in \cref{lst:erigon-command} and the RPC daemon with the command reported in \cref{lst:rpc-command}.
 
 \begin{lstlisting}[language=bash,caption={Erigon command},label={lst:erigon-command},captionpos=b,numbers=none]
 erigon \
@@ -48,7 +49,7 @@ To give a clearer overview of the environment in which data extraction was done,
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{Figures/results/load_tests/logs/success_rate_logs.png}
-    \caption{Success rate of {\tt eth\_getLogs}. After 1200 requests/s, Erigon starts to fail handling some requests. At 5k requests/s half of the requets fail. }
+    \caption{Success rate of {\tt eth\_getLogs}. After 1200 requests/s, Erigon starts to fail handling some requests. At 5k requests/s half of the requests fail. }
     \label{fig:logs-success}
 \end{figure}
 
@@ -63,7 +64,7 @@ To give a clearer overview of the environment in which data extraction was done,
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{Figures/results/load_tests/blocks/success_rate_blocks.png}
-    \caption{Success rate of {\tt eth\_getBlockByNumber}. Erigon shows perfect performance on this RPC. It can succesfully reply to 5k requests/s. }
+    \caption{Success rate of {\tt eth\_getBlockByNumber}. Erigon shows perfect performance on this RPC. It can successfully reply to 5k requests/s. }
     \label{fig:blocks-success}
 \end{figure}
 
@@ -115,9 +116,8 @@ To give a clearer overview of the environment in which data extraction was done,
     \label{fig:num-tasks}
 \end{figure}
 
-Eth2dgraph can be run with a variable amount of concurrent tasks that perform data extraction. This value can be set with the {\tt --num-tasks} option. Having too many concurrent tasks can overload the system where eth2dgraph is ran or the Ethereum node used, while having just few tasks make the extraction process very slow.
-
-To find a good value for the number of tasks, I ran eth2dgraph with different amount of tasks over one million blocks, from 10M to 11M. \cref{fig:num-tasks} shows the results of this test. As observed from the data, the optimal number of tasks for the machine used is around 2048, that is eight times the amount of available threads.
+Eth2dgraph can be run with a variable amount of concurrent tasks that perform data extraction. This value can be set with the {\tt --num-tasks} option. Having too many concurrent tasks can overload the system where eth2dgraph or Ethereum node run. On the other hand, having just a few tasks makes the extraction process very slow. The best is to find the best balance point.
+To find a good value for the number of tasks, I ran eth2dgraph with different amounts of tasks over one million blocks, from 10M to 11M. \cref{fig:num-tasks} shows the results of this test. As observed from the data, the optimal number of tasks for the machine used is around 2048, which is eight times the amount of available threads.
 
 \section{Extraction of data}
 
@@ -210,7 +210,7 @@ eth2dgraph extract \
 
 Data was imported in Dgraph using the Bulk Loader. I faced a problem during the import of the complete dataset, the loader kept crashing. Analyzing the logs, it seemed that the crash was due to a hard limit on the size of local buffers. Removing this hard-coded limit allowed me to complete the import of data. I also submitted this fix\footnote{Pull Request can be seen here: \url{https://github.com/dgraph-io/dgraph/pull/8841}} in the open-source codebase of Dgraph. It was accepted, merged in the main branch and later included in the 23.0.1 release.
 
-To perform the bulk import, I first ran with \cref{lst:zero-command} an instance of {\tt zero}, the Dgraph's node responsible of coordinating the distributed cluster. With the {\tt zero} running, the bulk import process was started with command reported in \cref{lst:bulk-command}.
+To perform the bulk import, I first ran with \cref{lst:zero-command} an instance of {\tt zero}, the Dgraph's node responsible of coordinating the distributed cluster. With the {\tt zero} running, the bulk import process was started with the command reported in \cref{lst:bulk-command}.
 
 \begin{lstlisting}[language=Bash,caption={Command used for running {\tt zero}.},label={lst:zero-command},captionpos=b,numbers=none]
     dgraph zero --my=localhost:5080
@@ -229,7 +229,7 @@ dgraph bulk -f "<data-location>" \
   --cleanup_tmp=false
 \end{lstlisting}
 
-The import of the complete dataset took 52 hours. Divided in 28 hours for the MAP phase and 24 hours for the REDUCE phase. It resulted to be the bottleneck of all the process, it took around 7.5 times the amount of time needed for extracting the data. 
+The import of the complete dataset took 52 hours. Divided into 28 hours for the MAP phase and 24 hours for the REDUCE phase. It resulted in being the bottleneck of the process, it took around 7.5 times the amount of time needed for extracting the data. 
 
 For memory heavy operations, Dgraph does not rely on the Go garbage collector, it uses \textit{jemalloc} to manually allocate memory. \cref{fig:import-ram-usage,fig:import-cpu-usage} show the RAM allocated by Dgraph during the phases of MAP and REDUCE of the bulk import. At least 400GiB of RAM are needed. Both steps have shown a big spike in memory allocation at around half of the process. The reasons of these spikes are not clear.
 
@@ -295,7 +295,7 @@ Dgraph exposes two endpoints for querying the data: one for DQL at \\{\tt /query
 
 DQL is the query language built by the Dgraph team to query and mutate data in this database. It has powerful features such as query variables, math on attributes, recursive queries and shortest path search. Under the hood, every GraphQL query is translated to DQL before being executed, so everything that can be done with GraphQL can be done with DQL, but not the opposite.
 
-To easily perform DQL queries, Dgraph provides a web application called \textit{Ratel}\footnote{Ratel is a web application for querying, visualizing and managing Dgraph's data: \url{https://github.com/dgraph-io/ratel}}. It gives a friendly user interface to get and visualize query results. \cref{fig:ratel-1} shows an example of query in which it is visualized the ABI of a contract. \cref{fig:ratel-2} shows accounts linked by transactions.
+To easily perform DQL queries, Dgraph provides a web application called \textit{Ratel}\footnote{Ratel is a web application for querying, visualizing and managing Dgraph's data: \url{https://github.com/dgraph-io/ratel}}. It gives a friendly user interface to get and visualize query results. \Cref{fig:ratel-1} shows an example of query in which it is visualized the ABI of a contract. \Cref{fig:ratel-2} shows accounts linked by transactions.
 
 \begin{figure}[H]
     \centering
@@ -406,18 +406,18 @@ In this section, I provide examples of queries with their corresponding executio
  
 \section{Comparison with Ethereum-ETL}
 
-Eth2dgraph was compared against Ethereum-ETL, one of the most popular open source tool to export Ethereum data. The two tools serve the same purpose: extract and transform Ethereum data to be more usable.
-Ethereum-ETL does so exporting data to CSV files, that can eventually be loaded into relational databases, while eth2dgraph does so exporting data to compressed JSON files that can be imported into Dgraph. 
+Eth2dgraph was compared against Ethereum-ETL, one of the most popular open-source tools to export Ethereum data. The two tools serve the same purpose: extract and transform Ethereum data to be more usable.
+Ethereum-ETL does so by exporting data to CSV files, that can eventually be loaded into relational databases, while eth2dgraph does so by exporting data to compressed JSON files that can be imported into Dgraph. 
 
-At high level, the two tools work in a similar way. They both fetch data using the Ethereum RPC interface. They both can be used trough a CLI.
+At a high level, the two tools work in a similar way. They both fetch data using the Ethereum RPC interface. They both can be used through a CLI.
 
-Ethereum-ETL does not integrate a decompiler to get the ABI of the smart contracts. It simply stores the raw four bytes of the function selectors that can be found as arguments of the {\tt PUSH4} opcode in the beginning of the contracts' bytecodes. 
+Ethereum-ETL does not integrate a decompiler to get the ABI of the smart contracts. It simply stores the raw four bytes of the function selectors that can be found as arguments of the {\tt PUSH4} opcode at the beginning of the contracts' bytecodes. 
 
-Another design difference is in the steps needed to get the data. Ethereum-ETL needs multiple extraction steps to get certain kind of information. For example, to get smart contracts data, it first needs to get and store the list of contracts' addresses, then, for each address, if fetches the contract's data. Eth2dgraph does everything in a single extraction step using the traces, to make the process faster.
+Another design difference is in the steps needed to get the data. Ethereum-ETL needs multiple extraction steps to get certain kinds of information. For example, to get smart contracts data, it first needs to get and store the list of contracts' addresses, then, for each address, it fetches the contract's data. Eth2dgraph does everything in a single extraction step using the traces, to make the process faster.
 
-The comparison was made by extracting data on various block ranges. There are multiple ways of using Ethereum-ETL. For this comparison it was run with the command {\tt export\_all}. This command produces a similar output to the one of eth2dgraph, with the difference that it includes transaction receipts but it does not use the traces. The usage of receipts instead of traces means that all the contracts created by other contracts are not included in the output data. 
+The comparison was made by extracting data on various block ranges. There are multiple ways of using Ethereum-ETL. For this comparison, it was run with the command {\tt export\_all}. This command produces a similar output to the one of eth2dgraph, with the difference that it includes transaction receipts but it does not use the traces. The usage of receipts instead of traces means that all the contracts created by other contracts are not included in the output data. 
 
-\cref{lst:ethereum-etl-command,lst:eth2dgraph-command} show the commands used to run the tools for the comparison. Both tools were run in the same machine and using the same Ethereum node. For the run on 400k blocks, Ethereum-ETL was run with batch size\footnote{The batch size indicates how many calls are sent together to the Ethereum node.} reduced to 20. This was done since the default size of 100 caused the program to crash. The results are reported in \cref{table:tools-comparison-2}. 
+\Cref{lst:ethereum-etl-command,lst:eth2dgraph-command} shows the commands used to run the tools for the comparison. Both tools were run on the same machine and using the same Ethereum node. For the run on 400k blocks, Ethereum-ETL was run with batch size\footnote{The batch size indicates how many calls are sent together to the Ethereum node.} reduced to 20. This was done since the default size of 100 caused the program to crash. The results are reported in \cref{table:tools-comparison-2}. 
 
 \begin{lstlisting}[caption={Command for running Ethereum-ETL in the comparison},label={lst:ethereum-etl-command},captionpos=b,numbers=none]
 ethereumetl export_all \

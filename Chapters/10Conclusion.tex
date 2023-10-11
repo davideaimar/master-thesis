@@ -1,0 +1,14 @@
+\label{chapter-conclusions}
+
+This research has investigated a novel solution to the problem of Ethereum data management using a graph database. Thanks to the release of eth2dgraph, it is now possible to easily index Ethereum data using Dgraph and query it with DQL and GraphQL. 
+
+To answer research question 1, the schema used to manage data gives a clear image of what can be extracted from EVM blockchains without relying on centralized services. It is reported in \cref{fig:schema}. The only kind of information that can not be extracted without relying on centralized services is the source code of smart contracts. It is possible to extract functions and events implemented by smart contracts from their bytecodes, even if the data is not perfectly accurate.
+
+Generally, most of the semantics related to on-chain operations can be obtained from logs. In this work, logs referring to token transfers were parsed to allow faster and easier queries. The same can be done for other domains, e.g. token swaps, token approvals, or other protocol-specific use cases.
+
+To answer the second research question, with the solution provided in this Master's Thesis, it is possible to estimate that at least 6TB of fast SSDs, 400GB of RAM, and a CPU of 64 cores are needed to perform independent extraction and indexing of all Ethereum data as of August 2023. 
+
+Although the entry barrier is high, it is still possible to run an archive node, extract all the historical data, and index it in a database all in the same machine. Apart from computational resources, it is an operation that also takes time. It takes at least a few days to sync a node, around seven hours to extract the data and more than two days to ingest it into the database.
+
+The analysis on the extracted data conducted in \Cref{chapter-analysis} serve as an example of the potentiality of this data. They show possible ways of using and interpreting Ethereum data. From these analysis it appeared that most of the traffic on the network is restricted to a small number of smart contracts. This fact suggested that more efficient analysis can be done focusing on a specific decentralized protocol, instead of having to manage all the historical Ethereum data.
+

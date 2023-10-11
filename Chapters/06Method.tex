@@ -4,7 +4,7 @@
 
 Eth2dgraph is developed using Rust, a system programming language that prioritizes both speed and safety. Rust was chosen mainly for two reasons. Firstly, for its emphasis on performance and parallelism, crucial for scaling the data extraction process and achieving good performance. Secondly, Rust benefits from a rich ecosystem of libraries specifically designed for handling Ethereum data, easing the process of development.
 
-One of the key features of eth2dgraph is its integration with a decompiler, enabling the extraction at scale of the Application Binary Interface (ABI) from the bytecode stored on the Ethereum blockchain. 
+One of the key features of eth2dgraph is its integration with a decompiler, enabling the extraction at the scale of the Application Binary Interface (ABI) from the bytecode stored on the Ethereum blockchain. 
 
 The following sections provide details about the architecture of eth2dgraph, give a comprehensive overview of how the software operates, and how it has been constructed.
 
@@ -27,7 +27,7 @@ The first attempt was to do this step through transactions. I ran a Dgraph clust
 
 To solve these problems, I changed the approach and followed an ETL (Extract, Transform, Load) process. Extraction and transformation are done in the same step by eth2dgraph. The output is stored in JSON files that can be later loaded into Dgraph using the Bulk Loader.
 
-The Bulk Loader\footnote{Detailed description of the Bulk Loader: \url{https://dgraph.io/blog/post/bulkloader/}} is a tool provided by Dgraph. It is designed for performing the initial load of data into the database. It takes JSON or RDF N-Quads\footnote{N-Quads is a serialization format for RDF graphs data \url{https://www.w3.org/TR/n-quads/}.} data and stores it directly in Badger, the underlying key-value database used by Dgraph. This is the fastest way to ingest data into Dgraph. It maximizes concurrency and avoid problems related to ACID constraints since it is not operating on a live database. \cref{fig:data-flow-2} visualizes the final data flow chosen for eth2dgraph.
+The Bulk Loader\footnote{Detailed description of the Bulk Loader: \url{https://dgraph.io/blog/post/bulkloader/}} is a tool provided by Dgraph. It is designed for performing the initial load of data into the database. It takes JSON or RDF N-Quads\footnote{N-Quads is a serialization format for RDF graphs data \url{https://www.w3.org/TR/n-quads/}.} data and stores it directly in Badger, the underlying key-value database used by Dgraph. This is the fastest way to ingest data into Dgraph. It maximizes concurrency and avoids problems related to ACID constraints since it is not operating on a live database. \Cref{fig:data-flow-2} visualizes the final data flow chosen for eth2dgraph.
 
 \begin{figure}[H]
 \centering
@@ -44,7 +44,7 @@ The Bulk Loader\footnote{Detailed description of the Bulk Loader: \url{https://d
 
 \section{Data model}
 
-After seeing how data is indexed in other works, I decided to design the schema in a slightly different way. In eth2dgraph, raw data is interpreted to create a schema around the semantics that can be extracted from the blockchain. This semantics is indexed alongside the raw Ethereum data. \cref{fig:schema} shows the whole schema that was created. All the edges have the {\tt @reverse} index, that means they can be traversed in both directions. Some of the attributes are indexed at load time, but it is easy to add indexes once the database is running. The complete description of both DQL and GraphQL schemas are described in~\cref{app-b}.
+After seeing how data is indexed in other works, I decided to design the schema in a slightly different way. In eth2dgraph, raw data is interpreted to create a schema around the semantics that can be extracted from the blockchain. This semantics is indexed alongside the raw Ethereum data. \Cref{fig:schema} shows the whole schema that was created. All the edges have the {\tt @reverse} index, which means they can be traversed in both directions. Some of the attributes are indexed at load time, but it is easy to add indexes once the database is running. The complete description of both DQL and GraphQL schemas are described in~\cref{app-b}.
 
 % TODO: update schema with final version
 
@@ -55,9 +55,9 @@ After seeing how data is indexed in other works, I decided to design the schema 
   \label{fig:schema}
 \end{figure}
 
-Data is modeled as a graph with many edges. This was done since Dgraph is designed and optimized to perform joins and traversals.
+Data is modelled as a graph with many edges. This was done since Dgraph is designed and optimized to perform joins and traversals.
 
-Entities in yellow (\textit{Transaction}, \textit{TokenTransfer} and \textit{Log}), also called \textit{dynamic}, are optional and can be skipped during data extraction. Excluding data about smart contracts usage allows the creation of a much smaller dataset that provides a static description of these contracts. The reason of this choice is that the volume of dynamic data is around 30-40x bigger than static data. Having the option to extract a smaller dataset enables analysis on less powerful computers, improving the accessibility of the research. \\
+Entities in yellow (\textit{Transaction}, \textit{TokenTransfer} and \textit{Log}), also called \textit{dynamic}, are optional and can be skipped during data extraction. Excluding data about smart contracts usage allows the creation of a much smaller dataset that provides a static description of these contracts. The reason of this choice is that the volume of dynamic data is around {\tt 30-40x} bigger than static data. Having the option to extract a smaller dataset enables analysis on less powerful computers, improving the accessibility of the research. \\
 
 \noindent Here is a brief description of the schema:
 
@@ -65,21 +65,21 @@ Entities in yellow (\textit{Transaction}, \textit{TokenTransfer} and \textit{Log
 
     \item \textit{Transaction} and \textit{Log} are stored as they are retrieved from the Ethereum node. References to other entities are stored as edges for allowing graph traversal in queries. A \textit{Transaction} represents a transfer of value between two EOAs or an invocation of a Smart Contract from an EOA. A \textit{Log} is the result of an invocation of an Event in the code of a Smart Contract.
 
-    \item \textit{TokenTransfer} represents both an ERC20 or an ERC721 token transfer between two accounts. The value is stored as a string since Dgraph does not handle 256 bit integers.
+    \item \textit{TokenTransfer} represents both an ERC20 or an ERC721 token transfer between two accounts. The value is stored as a string since Dgraph does not handle 256-bit integers.
     
     \item \textit{Block} contains all the information related to a single Ethereum block header. This entity is connected to many others: \textit{ContractDeployment}, \textit{ContractDestruction}, \textit{Transaction}, \textit{TokenTransfer} and \textit{Log}. 
     
     The indexed attribute \textit{datetime} is the only reference to time in the database, so it is possible to query it for specific dates and times and then get all the connected data from there. 
 
-    Here, it is added a summary about the gas prices of the transactions included.
+    Here, it added a summary of the gas prices of the transactions included.
 
     \item \textit{Withdrawal} represents a withdrawal from a validator. Withdrawals are used to remove the locked funds and stop being a validator in the proof of stake.
 
-    \item \textit{Account} represents an Externally Owned Account or a Contract Account. Its fundamental attribute is the \textit{Address} of the account. There is also a boolean field \textit{is\_contract} indicating whether the account is a contract or not. This entity is extremely useful for querying data, since with the standard Ethereum RPC interface it is not possible to query data based on account addresses. So, for example, it is impossible to get all the transactions from/to an address without having to download and filter all the transactions in the history of Ethereum.
+    \item \textit{Account} represents an Externally Owned Account or a Contract Account. Its fundamental attribute is the \textit{Address} of the account. There is also a boolean field \textit{is\_contract} indicating whether the account is a contract or not. This entity is extremely useful for querying data since with the standard Ethereum RPC interface it is not possible to query data based on account addresses. So, for example, it is impossible to get all the transactions from/to an address without having to download and filter all the transactions in the history of Ethereum.
 
-    \item \textit{ContractDeployment} and \textit{ContractDestruction} represent respectively the birth and the death of the code of a Smart Contract. I decided to store them in this way since I found, analyzing the data, that a single Ethereum Address can receive more than one code deployment, contrary to what it may appear because of the theoretical immutability of Smart Contracts. An address can receive both a deployment with the same old code or with new different code, in which case it is called \textit{morphic} or \textit{metamorphic}~\cite{create2-metamorphic}.
+    \item \textit{ContractDeployment} and \textit{ContractDestruction} represent respectively the birth and the death of the code of a Smart Contract. I decided to store them in this way since I found, analyzing the data, that a single Ethereum Address can receive more than one code deployment, contrary to what it may appear because of the theoretical immutability of Smart Contracts. An address can receive both a deployment with the same old code or with a new different code, in which case it is called \textit{morphic} or \textit{metamorphic}~\cite{create2-metamorphic}.
 
-    \item I introduced the concept of \textit{Skeleton} directly in the schema since it is a useful way of aggregating similar contracts together. A \textit{Skeleton} is the bytecode of a contract without all the arguments of the PUSH opcodes. Having it directly in the schema allows to easily find contracts sharing the same skeleton.
+    \item I introduced the concept of \textit{Skeleton} directly in the schema since it is a useful way of aggregating similar contracts together. A \textit{Skeleton} is the bytecode of a contract without all the arguments of the PUSH opcodes. Having it directly in the schema allows us to easily find contracts sharing the same skeleton.
 
     \item \textit{Event}, \textit{Function} and \textit{Error} are the parts that, together, form the ABI of the contracts. There is just one entity for each signature, so all the contracts implementing the same function/event/error point to the same entity. Having them indexed in this way allows to search contracts based on the functionalities they implement.
     
@@ -91,7 +91,7 @@ Data is extracted using the Ethereum \textit{Remote Procedure Call} (RPC) interf
 
 To call these RPCs, I used the Rust library \texttt{ethers-rs}\footnote{\url{https://docs.rs/ethers/latest/ethers/}}, which provides, among other functionalities, a full client implementation that wraps the standard Ethereum RPC interface and provides easy methods to interact with it in an asynchronous runtime.
 
-At high level, data returned from these RPC endpoints is parsed into Rust structs and later serialized into JSON files using the \textit{serde}\footnote{Serde is a Rust framework for easily serializing and de-serializing data structures \url{https://github.com/serde-rs/serde}} crate. To implement this, all the Rust structs that must be serialized to Dgraph format implement a trait called \textit{SerializeDgraph}. In Rust, a trait defines a collection of methods. A struct that implements a trait is guaranteed to have that methods implemented. It is a concept similar to the Interfaces in object oriented programming (OOP) languages.
+At a high level, data returned from these RPC endpoints is parsed into Rust structs and later serialized into JSON files using the \textit{serde}\footnote{Serde is a Rust framework for easily serializing and de-serializing data structures \url{https://github.com/serde-rs/serde}} crate. To implement this, all the Rust structs that must be serialized to Dgraph format implement a trait called \textit{SerializeDgraph}. In Rust, a trait defines a collection of methods. A struct that implements a trait is guaranteed to have those methods implemented. It is a concept similar to the Interfaces in object-oriented programming (OOP) languages.
 
 The trait \textit{SerializeDgraph} requires one method to be implemented:\\ \texttt{serialize\_dgraph}. As the name suggests, it is a function that serializes a generic struct to the JSON format accepted by the Dgraph Bulk Loader.
 
@@ -109,7 +109,7 @@ This method accepts two parameters:
     \item \textit{Hydrated transactions} is a boolean indicating whether to return or not all the details of the transactions in that block.
 \end{itemize}
 
-Eth2dgraph calls this RPC sequentially for each block with \textit{Hydrated transactions} set to \texttt{true}. All raw transactions data is stored without modifications, same for the withdrawals. For the blocks I added a summary about the gas price, this is not returned by  default from the RPC. These fields have been added: 
+Eth2dgraph calls this RPC sequentially for each block with \textit{Hydrated transactions} set to \texttt{true}. All raw transaction data is stored without modifications, same for the withdrawals. For the blocks I added a summary of the gas price, this is not returned by  default from the RPC. These fields have been added: 
 
 \begin{itemize}
     \item \textit{gas\_price\_min}: the cheapest gas price of all the transactions included in the block, in Gwei.
@@ -124,15 +124,15 @@ Looking at the data returned from the Erigon node and analyzing its source code\
 
 \subsection{Logs}
 
-Logs are retrieved using the \texttt{eth\_getLogs} RPC. This remote procedure call accepts an object as parameter, it can be used as a filter to refine the call and get just the logs needed. It is possible to filter by topics, contract address and blocks range. 
+Logs are retrieved using the \texttt{eth\_getLogs} RPC. This remote procedure call accepts an object as a parameter, it can be used as a filter to refine the call and get just the logs needed. It is possible to filter by topics, contract address and block range. 
 
-All the logs are already indexed in the Ethereum nodes by the fields on which it is possible to filter. It is the standard way to extract semantics from the chain. When specifics conditions happen inside a call to a smart contract, it can emit a log with up to four indexed 256 bits words that will be stored by all the Ethereum nodes. These logs can represent any kind of information, e.g.~token transfers, token swaps.
+All the logs are already indexed in the Ethereum nodes by the fields on which it is possible to filter. It is the standard way to extract semantics from the chain. When specific conditions happen inside a call to a smart contract, it can emit a log with up to four indexed 256-bit words that will be stored by all the Ethereum nodes. These logs can represent any kind of information, e.g.~token transfers, and token swaps.
 
-Eth2dgraph is getting logs downloading them block by block. The RPC \textit{eth\_getLog} is called for each block with a filter on the blocks range, with matching \textit{fromBlock} and \textit{toBlock} parameters.
+Eth2dgraph is getting logs and downloading them block by block. The RPC \textit{eth\_getLog} is called for each block with a filter on the blocks range, with matching \textit{fromBlock} and \textit{toBlock} parameters.
 
 \subsection{Smart contracts}
 
-There are two ways for deploying a smart contract on the Ethereum blockchain: 
+There are two ways to deploy a smart contract on the Ethereum blockchain: 
 
 \begin{itemize}
     \item From EOAs, with a transaction to the address \texttt{0x0} containing as input data the deployment code of the smart contract.
@@ -141,7 +141,7 @@ There are two ways for deploying a smart contract on the Ethereum blockchain:
 
 There is no RPC to directly get the list of contracts. Smart contracts are not indexed by the Ethereum nodes.
 
-It is relatively easy to extract smart contracts deployed in the first way, it is enough to loop trough transactions and see the ones sent to the address \texttt{0x0}. The resulting transactions are potential contract deployments. To confirm this, it is possible to download their receipts, which contain the address of the newly created contract in case the deployment is successful. After finding the address, it is possible to get the deployed bytecode calling the RPC \texttt{eth\_getCode}, which returns the actual code stored on the blockchain.
+It is relatively easy to extract smart contracts deployed in the first way, it is enough to loop through transactions and see the ones sent to the address \texttt{0x0}. The resulting transactions are potential contract deployments. To confirm this, it is possible to download their receipts, which contain the address of the newly created contract in case the deployment is successful. After finding the address, it is possible to get the deployed bytecode calling the RPC \texttt{eth\_getCode}, which returns the actual code stored on the blockchain.
 
 This way of extracting contracts has two drawbacks: it requires two extra calls to RPCs for each deployment and it misses all the contracts deployed by other contracts. Contracts are more likely to be deployed by other contracts rather than by users~\cite{ethereum-sc-topology}, so it is clear that this way is not ideal.
 
@@ -206,7 +206,7 @@ fn propagate_errors(traces: &mut Vec<Trace>) {
 
 As for the smart contracts, there is no RPC to get the list of accounts used on the Ethereum blockchain. They must be extracted as they are used.
 
-Being a permissionless blockchain implies that there is not an initial phase of registration or an official opening of an account. Users simply generate an address and start using it. 
+Being a permissionless blockchain implies that there is no initial phase of registration or an official opening of an account. Users simply generate an address and start using it. 
 
 Eth2dgraph stores accounts every time they are used in the following cases:
 
@@ -219,14 +219,14 @@ Eth2dgraph stores accounts every time they are used in the following cases:
     \item Senders or receivers of token transfers.
     \item Addresses of contract deployments or destructions, marked as contracts.
     \item Addresses of contracts emitting logs, marked as contracts.
-    \item Addresses of a contracts emitting a token transfer, marked as contract.
+    \item Addresses of contracts emitting a token transfer, marked as a contract.
 \end{itemize}
 
 \section{Semantics extraction}
 
 The previous section described how raw Ethereum data is extracted. In this section, I describe how eth2dgraph extracts semantics from this data.
 
-The semantics extracted are meant to give a more comprehensive description of the smart contracts stored on the blockchain. The only information that can be taken from the Ethereum protocol about smart contracts is their EVM bytecode. The EVM bytecode is the byte representation of the contracts' compiled code that can be run by the Ethereum Virtual Machine implemented in all the nodes. While it is fundamental to the functioning of the protocol, it does not give any meaningful description of the smart contract for a human analysis. 
+The semantics extracted are meant to give a more comprehensive description of the smart contracts stored on the blockchain. The only information that can be taken from the Ethereum protocol about smart contracts is their EVM bytecode. The EVM bytecode is the byte representation of the contracts' compiled code that can be run by the Ethereum Virtual Machine implemented in all the nodes. While it is fundamental to the functioning of the protocol, it does not give any meaningful description of the smart contract for human analysis. 
 
 Eth2dgraph tries to put together pieces of information to allow for an easier analysis of such smart contracts.
 
@@ -235,8 +235,8 @@ Eth2dgraph tries to put together pieces of information to allow for an easier an
 \label{decompilation-section}
 Smart contracts are described by an \textbf{Application Binary Interface} (ABI) that lists all the functions and events that are implemented. 
 
-Smart contracts can be seen as REST APIs. The application status is stored in the contract's state variables, similarly to a database.
-The public functions exposed by the contract are like the API endpoints that can be used by users to interact with the application. This is done via stateless transactions (in the blockchain) and via HTTP calls (in the traditional REST API pattern). The ABI is the description of the exposed functions and events of a smart contracts, similarly to the specification of an API. 
+Smart contracts can be seen as REST APIs. The application status is stored in the contract's state variables, similar to a database.
+The public functions exposed by the contract are like the API endpoints that can be used by users to interact with the application. This is done via stateless transactions (in the blockchain) and via HTTP calls (in the traditional REST API pattern). The ABI is the description of the exposed functions and events of a smart contract, similar to the specification of an API. 
 
 It is clear that having the ABI of a smart contract gives many useful insights about what it does. It can also be used to decode transactions and logs. In the ABI, there are the types of functions and events arguments. These types can be used to decode the bytes present in the transactions and logs data. It is possible to understand if they represent addresses, numbers, strings, raw bytes, etc..
 
@@ -249,12 +249,12 @@ To extract the ABI, eth2dgraph integrates heimdall-rs\footnote{EVM decompiler wr
   \label{fig:decompilation-architecture}
 \end{figure}
 
-It is possible to extract function names using a database of reverse hashes. Function selectors are stored in the bytecode as the first four bytes of the hash of the functions' signature. It is possible to read these four bytes and see if there are matching signature that were previously reverse hashed. Heimdall-rs does this using the public etherface\footnote{Etherface is a database of Ethereum functions and event signatures, with related hashes, available at: \url{https://www.etherface.io/}} database. 
-Unfortunately, it is not possible to extract parameters name from the bytecode stored on the blockchain. This piece of information is removed during the compilation of the code. 
+It is possible to extract function names using a database of reverse hashes. Function selectors are stored in the bytecode as the first four bytes of the hash of the function's signature. It is possible to read these four bytes and see if there are matching signatures that were previously reverse-hashed. Heimdall-rs does this using the public etherface\footnote{Etherface is a database of Ethereum functions and event signatures, with related hashes, available at: \url{https://www.etherface.io/}} database. 
+Unfortunately, it is not possible to extract parameter names from the bytecode stored on the blockchain. This piece of information is removed during the compilation of the code. 
 
-Heimdall-rs is integrated in eth2graph using separate processes. Each time there is the need of running the decompiler, eth2dgraph creates a new process. This is done for isolation. For the nature of how the decompiler works, it can run in infinite loops during the symbolic execution. To avoid that, eth2dgraph has a parameter to set the maximum time spent waiting for de-compilation. The default is  five seconds.
+Heimdall-rs is integrated in eth2graph using separate processes. Each time there is the need to run the decompiler, eth2dgraph creates a new process. This is done for isolation. For the nature of how the decompiler works, it can run in infinite loops during the symbolic execution. To avoid that, eth2dgraph has a parameter to set the maximum time spent waiting for de-compilation. The default is  five seconds.
 
-The output of the heimdall-rs process is stored to text files. When decompilation is done, these files are de-serialized by eth2dgraph into Rust data structures. \cref{fig:decompilation-architecture} shows how decompilation in handled in eth2dgraph.
+The output of the {\tt heimdall-rs} process is stored in text files. When decompilation is done, these files are de-serialized by eth2dgraph into Rust data structures. \cref{fig:decompilation-architecture} shows how decompilation in handled in eth2dgraph.
 
 \subsection{Contracts skeleton and metadata}
 \label{skeleton-section}
@@ -262,7 +262,7 @@ The \textit{skeleton} of an EVM bytecode is the bytecode itself with all the arg
 
 Removing the PUSH arguments to the bytecode deployed on the blockchain is not enough to extract the skeletons. The Solidity compiler can add metadata at the end of the bytecode that must be removed before getting the skeleton.  
 
-Eth2dgraph identifies this part using a regular expression. Metadata is stored as CBOR\footnote{CBOR is a binary data serialization format standardized in RFC8949 \url{https://www.rfc-editor.org/rfc/rfc8949.html}} encoded data. After being splitted, the \textit{runtime} part of the bytecode is processed for the skeleton extraction, while the metadata part is decoded. Metadata are also stored in the indexed data, these are the field included:
+Eth2dgraph identifies this part using a regular expression. Metadata is stored as CBOR\footnote{CBOR is a binary data serialization format standardized in RFC8949 \url{https://www.rfc-editor.org/rfc/rfc8949.html}} encoded data. After being split, the \textit{runtime} part of the bytecode is processed for the skeleton extraction, while the metadata part is decoded. Metadata are also stored in the indexed data, these are the field included:
 
 \begin{itemize}
     \item \textit{storage\_protocol}: distributed file system protocol where the developer can eventually store the source code of the contract.
@@ -271,17 +271,19 @@ Eth2dgraph identifies this part using a regular expression. Metadata is stored a
     \item \textit{experimental}: whether the compilation was performed with experimental features activated.
 \end{itemize}
 
-The skeleton extraction is performed by looping trough the bytes of the EVM bytecode. A byte between \texttt{0x60} and \texttt{0x7f} represents a PUSH instruction. If a byte is found in that range, the next bytes are replaced with zeros depending on the kind of PUSH found. 
+The skeleton extraction is performed by looping through the bytes of the EVM bytecode. A byte between \texttt{0x60} and \texttt{0x7f} represents a PUSH instruction. If a byte is found in that range, the next bytes are replaced with zeros depending on the kind of PUSH found. 
 
 \subsection{Verified source code}
 
-It is possible to link contracts to their verified source code using the repository of \textit{Smart Contract Sanctuary}~\cite{smart_contract_sanctuary}. After cloning the repository locally, eth2dgraph can be ran with an option to include source code of the discovered contracts in the indexed data.
+It is possible to link contracts to their verified source code using the repository of \textit{Smart Contract Sanctuary}~\cite{smart_contract_sanctuary}. After cloning the repository locally, eth2dgraph can be run with an option to include the source code of the discovered contracts in the indexed data.
 
-This allows querying the contracts based on text inside the source code. Dgraph supports text matching with stemming stop words removal. Data can be queried with two query functions: \texttt{anyoftext} and \texttt{alloftext}.
+This allows querying the contracts based on text inside the source code. Dgraph supports text matching with stemming stop word removal. Data can be queried with two query functions: \texttt{anyoftext} and \texttt{alloftext}. The first function matches for any of the term searched for, while the second function matches for all the search terms.
+
+A query example with {\tt anyoftext} is searching for all smart contracts that have in the source code the terms {\it token}, {\it erc20} or {\it erc721}. To be more precise, it would be possible to search with {\tt alloftext} all the smart contracts that have in the source code the exact signature of the transfer function of either the ERC20 or ERC721 standards. All of this is doable in a single fast query.
 
 \subsection{Token transfers}
 
-The ERC20 and ERC721 token standards states that when a token ownership is transferred an event MUST be emitted. \cref{lst:erc20-transfer} shows the event emitted for fungible token transfers, \cref{lst:erc721-transfer} shows the one emitted for NFT transfers. Emitting an event means generating a log that is indexed by Ethereum nodes.
+The ERC20 and ERC721 token standards state that when a token ownership is transferred an event MUST be emitted. \cref{lst:erc20-transfer} shows the event emitted for fungible token transfers, \cref{lst:erc721-transfer} shows the one emitted for NFT transfers. Emitting an event means generating a log that is indexed by Ethereum nodes.
 
 \begin{lstlisting}[caption={Event emitted for ERC20 token transfer},label={lst:erc20-transfer},captionpos=b]
 event Transfer(address indexed _from, address indexed _to, uint256 _value)
@@ -291,29 +293,29 @@ event Transfer(address indexed _from, address indexed _to, uint256 _value)
 event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId)
 \end{lstlisting}
 
-Both events share the same name and types. The only difference is in the last parameter. It is indexed in case of ERC721 and not indexed in case of ERC20. The signature of the event is not influenced by this difference, so all the logs that are describing token transfers share the same signature.
+Both events share the same name and type. The only difference is in the last parameter. It is indexed in the case of ERC721 and not indexed in the case of ERC20. The signature of the event is not influenced by this difference, so all the logs that describe token transfers share the same signature.
 
-Logs with the first topic matching the keccak256 hash of the Transfer event signature are treated as token transfers by eth2dgraph.
+Logs with the first topic matching the {\tt keccak256} hash of the Transfer event signature are treated as token transfers by eth2dgraph.
 
-After finding a matching log, the bytes composing the data field are split into 256 bit words and merged to the 256 words of the indexed topics.
+After finding a matching log, the bytes composing the data field are split into 256-bit words and merged into the 256 words of the indexed topics.
 
-The 256 bit words are then treated and decoded as follows:
+The 256-bit words are then treated and decoded as follows:
 
 \begin{itemize}
     \item First word is the \textit{from} address.
     \item Second word is the \textit{to} address.
-    \item Third word is the \textit{value}. It represent the amount in case of ERC20 or the token ID in case of ERC721.
+    \item Third word is the \textit{value}. It represents the amount in the case of ERC20 or the token ID in the case of ERC721.
 \end{itemize}
 
 If the decoding succeeds, the log is parsed and later stored as a token transfer.
 
-Distinction between ERC20 and ERC721 transfers is done based on length of the topics array. Since ERC20 has the last parameter not indexed, the topics length is three words. For the ERC721 the topics length is four. This information is used to discriminate between storing the third word as \textit{value} or as \textit{token\_id}.
+The distinction between ERC20 and ERC721 transfers is done based on the length of the topics array. Since ERC20 has the last parameter not indexed, the topic length is three words. For the ERC721 the topics length is four. This information is used to discriminate between storing the third word as \textit{value} or as \textit{token\_id}.
 
 The same way of semantics extraction can be used for other kind of logs, e.g. token swaps. Eth2dgraph implements the code for parsing token transfer since it is the most common log emitted on the Ethereum chain.
 
 \section{Software architecture}
 
-The Ethereum network stores data in the order of billions of entries. The process of extraction must be as efficient as possible to be able to get this data in reasonable time. At the time of writing, Ethereum has 17.5M blocks. Performing each single action described in the previous sections sequentially for each block results in executions that take many days or even weeks. 
+The Ethereum network stores data in the order of billions of entries. The process of extraction must be as efficient as possible to be able to get this data in a reasonable time. At the time of writing, August 2023, Ethereum has 18M blocks. Performing every single action described in the previous sections sequentially for each block results in executions that take many days or even weeks. 
 
 A lot of time is spent waiting for network data (the calls to the RPCs) or for the decompiler process to complete the decompilation. While it is not possible to make these steps faster, it is possible to parallelize them. Eth2dgraph has been developed to maximize concurrency of the machine where it is ran to minimize the time needed for data extraction.
 
@@ -419,7 +421,7 @@ ISZERO
 PUSH2
 JUMPI
 PUSH1\end{lstlisting}
-        give these 5-grams with related frequencies:
+        give these 5-grams with related frequencies as values:
         \begin{lstlisting}
 [
     ("PUSH1 PUSH1 MSTORE CALLVALUE DUP1", 1),
@@ -428,10 +430,11 @@ PUSH1\end{lstlisting}
     ("CALLVALUE DUP1 ISZERO PUSH2 JUMPI", 1),
     ("DUP1 ISZERO PUSH2 JUMPI PUSH1", 1),
 ]       \end{lstlisting}
-        \item This results in having two hypervectors, here called $A$ and $B$, in the dimension of the 5-grams. The cosine similarity is the cosine of the angle between these two vectors. It is possible to compute it as 
+        \item This results in having two hypervectors, here called $A$ and $B$, in the dimension of the 5-grams. $A$ and $B$ are structured as shown in the previous listing. The cosine similarity is the cosine of the angle $\theta$ between these two vectors. It is possible to compute it as 
         \[
-        cos(\theta)=\frac{A \cdot B}{||A||\,||B||}=\frac{\sum\limits_{i=1}^{n}A_iB_i}{ \sqrt{\sum\limits_{i=1}^{n}A^2_i \cdot \sum\limits_{i=1}^{n}B^2_i} }
+        cos(\theta)=\frac{A \cdot B}{||A||\,||B||}=\frac{\sum\limits_{i\in\Omega}A_iB_i}{ \sqrt{\sum\limits_{i\in\Omega}A^2_i \cdot \sum\limits_{i\in\Omega}B^2_i} }
         \]
+        In the previous formula, $\Omega$ is the set that results from the intersection of the dimensions of $A$ and $B$.
         This gives a number between 0 (completely dissimilar bytecodes) and 1 (identical bytecodes). The suggested threshold for considering similarity suggested by Kiffer et al. is of $0.90$.
     \end{enumerate}
 \end{itemize}

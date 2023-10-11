@@ -1,0 +1,47 @@
+\label{chapter-discussion}
+
+\subsection{Dgraph for Ethereum data}
+
+As blockchain technology gains popularity, the challenge of managing data from these networks becomes increasingly critical. Dgraph proved to be a viable solution for managing Ethereum data. This kind of data adapts well to graph databases. 
+
+However, there are some drawbacks that were encountered when using Dgraph:
+
+\begin{itemize}
+    \item EVM data is often represented using 256-bit integers or raw bytes. Dgraph does not support these data types. They must be stored as text with all the related disadvantages, such as more disk space used and the impossibility of doing math operations in the queries.
+    \item When used with a large dataset, Dgraph encountered some limitations with the usage of memory. It crashed both during the bulk import and during the execution of large queries. These problems were solved by modifying the database source code or tweaking the queries to use less memory. However, they show that Dgraph is still not well-tested against large datasets.
+    \item Insertion of live Ethereum data into a cluster with all the history of the blockchain was slower that the production of data from the blockchain. The underlying Badger database gets stuck periodically logging~{\tt L0 was stalled}. This made it impossible to keep the dataset updated with the latest blocks. 
+\end{itemize}
+
+Dgraph is a relatively new technology. It was born in 2016 and is currently under active development. The project maintainers showed interest in this use case and actively helped me to solve the problems I faced with the database.
+
+\subsection{Challenges of blockchain data management}
+
+The process of data extraction using the Ethereum RPC interface worked well and proved to be an optimal solution. The biggest problem of this process is the amount of time and computational resources it needs, as described in \Cref{chapter-5}.
+
+It is important to highlight that these data refer to the Ethereum blockchain. Layer 2 protocols and other blockchains are even more critical as they are already producing more data than Ethereum. Polygon\footnote{Polygon is a layer 2 EVM blockchain based on Ethereum.} is producing blocks 5 times faster than Ethereum, with an average of one new block every two seconds. The BNB Chain\footnote{BNB Chain is a layer 1 EVM compatible blockchain developed by the Binance exchange.} is another popular blockchain that is growing at a pace of a new block every three seconds.
+
+Another relevant concern is that blockchains will grow indefinitely. The size of an instance of a Geth archive node is growing at around 3.5TB per year\footnote{This graph made by Etherscan shows the historical size of a Geth archive node: \url{https://etherscan.io/chartsync/chainarchive}.}. Soon, it will not be possible to handle all this data on a single machine, since vertical scalability is not infinite. A distributed approach will be the only viable way in the future.
+
+This expensive entry barrier makes it hard to perform such an operation. People interested in analyzing Ethereum data are more likely to use one of the few centralized services instead of running their infrastructure. 
+
+The lack of research and tools in this field could potentially create a gap between companies and the open-source community. This would reduce the decentralization of the blockchain ecosystem, making an important element such as data analysis dependent on private companies.
+
+\subsection{Domain-specific data analysis}
+
+If blockchains continue to grow in size indefinitely as they are designed to do, it will be unfeasible to get and index all the historical data in a single place. Chances are that it will be a similar challenge of indexing all the history of the World Wide Web on a single machine or cluster of machines right now.
+
+The potential solution to this problem is reducing the domain of the managed data. As seen in the analysis reported in \Cref{chapter-analysis}, most of the traffic on the chain is restricted to a relatively small set of smart contracts. These smart contracts implement different and independent protocols. Information about what happens in these protocols can be extracted, indexed and analyzed independently from each other.
+
+The Graph~\cite{the-graph} proposes a solution of this kind. As noted in \Cref{chapter-3}, this decentralized indexing protocol gathers together data that is indexed independently from the various decentralized protocols implemented by smart contracts. This particular indexing protocol is even more strict in term of amount of data since it just considers the logs, ignoring transactions and blocks data. This technique allows for better scalability, but lacks giving a bigger picture of the traffic in a blockchain network.
+
+\subsection{Future work}
+
+There are some areas of this research that could be explored more in-depth in future works. In theory, eth2dgraph should work with any EVM-compatible chain, such as Polygon, since the RPCs used are the same. This has not been tested because of the lack of available nodes.
+
+Due to the infrastructure available, Dgraph was used in a single machine. It would be interesting to test its behaviour with a cluster distributed over multiple servers. This would test the horizontal scalability of Dgraph.
+
+Another area of improvement is the streaming of live data. Currently, eth2dgraph supports live data insertion from the Ethereum network to an active Dgraph cluster using ACID transactions. It proved to work well when the database does not have a lot of data already indexed, but it was slower than the production of data from the blockchain when the database had all the Ethereum history indexed. The optimization of this part of the tool was not the priority of this work, so this could be an area of improvement.
+
+Talking more broadly, the optimal solution to the problem that this research tries to address would be to have blockchain clients that directly give the option to freely index data. This would remove the redundancy of having to store data in two different places: one in the EVM client storage and one in the database storage. These \textit{Blockchain Analytics Clients} could specifically target data analysts and would not need the ability to participate in the consensus layer of the protocol. 
+
+
