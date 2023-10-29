@@ -228,7 +228,7 @@ Smart contracts can do many things, such as:
     \item Interact with other smart contracts: during its execution, a smart contract can call other smart contracts and use their return values.
     \item Emit events that are indexed: it is possible to use the \lstinline{LOG} opcode to store persistent data that is indexed by the Ethereum clients. This indexed data can be easily retrieved by traditional software through fast RPC calls. 
     \item They can handle failures: it is possible for a smart contract to gracefully handle failures both totally or partially. Everything that is done in a failed branch of a transaction is not persistently stored on the blockchain.
-    \item Access context data: its is possible to access block and transaction data inside the execution of the code. It is very common to use the address of the transaction's sender to manage access to certain restricted functions.
+    \item Access context data: it is is possible to access block and transaction data inside the execution of the code. It is very common to use the address of the transaction's sender to manage access to certain restricted functions.
 \end{itemize}
 
 But at the same time, smart contracts on Ethereum have some limitations that limit their applicability to real-world scenarios:
